@@ -1,7 +1,5 @@
-import machine
 import network
 import utime
-import ubinascii
 
 
 class WiFi:
@@ -12,18 +10,21 @@ class WiFi:
         self.sta = network.WLAN(network.STA_IF)  # Start STA mode
         utime.sleep_ms(200)
         self.sta.active(True)
-        self.machine_id = ubinascii.hexlify(machine.unique_id()).decode().upper()
+        self.ssid = None
+        self.pwd = None
 
     def ap_start(self, ssid):
         """
-        :param ssid: string; ESSID for the AP
-        :return:
+        :param ssid: str; ESSID for the AP
+        :return: str; IP address of the ESP32 AP
         """
         # Initialize the network
         self.ap.active(True)  # activate the AP interface
-        self.ap.config(essid=ssid + self.machine_id)  # set ssid
         utime.sleep_ms(200)
-        self.ap.config(dhcp_hostname=ssid + '.local')  # set hostname
+        self.ap.config(essid=ssid)
+        #self.ap.config(essid=ssid + self.machine_id)  # set ssid
+        utime.sleep_ms(200)
+        return self.get_ap_ip_addr()
 
     def get_ap_ip_addr(self):
         """
@@ -33,7 +34,7 @@ class WiFi:
             self.ap_ip_addr = self.ap.ifconfig()[0]  # get AP (ESP32 itself) IP address
             return self.ap_ip_addr
         else:
-            return 'WiFi is off, please turn on the AP mode.'
+            return None
 
     def get_sta_ip_addr(self):
         """
@@ -43,23 +44,64 @@ class WiFi:
             self.sta_ip_addr = self.sta.ifconfig()[0]
             return self.sta_ip_addr
         else:
-            return False
+            return None
 
     def scan_wifi_list(self):
         """
         Scan and return a list of available Access Points
         return: list;
         """
-        aps = self.sta.scan()
-        ap_list = [ap[0] for ap in aps]
-        return ap_list
+        scanned_wifi = self.sta.scan()
+        wifi_list = [str(wifi[0], 'utf8') for wifi in scanned_wifi]
+        return list(set(wifi_list))
 
-    def sta_connect(self, ap_ssid, ap_pass):
+    def verify_ap(self, ap_ssid):
+        return ap_ssid in self.scan_wifi_list()
+
+    def sta_connect(self, ap_ssid, ap_pass, verify_ap=False):
         """
         Connect to an Access Point by its SSID and Password
         return: string; the IP of the STA
         """
-        self.sta.sta_connect(ap_ssid, ap_pass)
-        utime.sleep_ms(500)
-        return self.get_sta_ip_addr()
+        # Attempt connection only if SSID can be found
+        if verify_ap:
+            if not self.verify_ap(ap_ssid):
+                print('Network "' + ap_ssid + '" does not present')
+                return None
+        else:
+            # Disconnect current wifi network
+            if self.sta.isconnected():
+                print('Disconnecting from current network...')
+                self.sta.disconnect()
+                utime.sleep(1)
+                self.sta.active(False)
+                utime.sleep_ms(200)
+                self.sta.active(True)
+                utime.sleep_ms(200)
+            print('Connecting to "' + ap_ssid + '"...')
+            try:
+                self.sta.connect(ap_ssid, ap_pass)
+            except:
+                pass
+            utime.sleep(4)
+            if self.sta.isconnected():
+                print('Network "' + ap_ssid + '" Connected!')
+                # if successfully connected, store the SSID & Password
+                self.ssid = ap_ssid
+                self.pwd = ap_pass
+                return self.get_sta_ip_addr()
+            else:
+                # if not, restore the previous connection
+                if self.ssid and self.pwd:
+                    print('Unable to connect "' + ap_ssid + '"')
+                    print('Restore the connection with "' + self.ssid + '"')
+                    try:
+                        self.sta.connect(self.ssid, self.pwd)
+                    except:
+                        pass
+                else:
+                    print('Unable to connect "' + ap_ssid + '"')
+                    return None
 
+    def is_connected(self):
+        return self.sta.isconnected()

@@ -13,8 +13,7 @@ class Unit:
             [float] -- [degree, unit is fahrenheit]
         """
         return round((celsius * 1.8 + 32), 2)
-    
-    
+
     @staticmethod
     def sg2plato(sg):
         """Convert Specific Gravity to Plato
@@ -25,9 +24,8 @@ class Unit:
         Returns:
             [float] -- [Plato, unit is degree P]
         """
-
         plato = (-1 * 616.868) + (1111.14 * sg) - (630.272 * sg**2) + (135.997 * sg**3)
-        return round(plato, 1)
+        return round(plato, 3)
 
     @staticmethod
     def plato2sg(plato):
@@ -39,9 +37,8 @@ class Unit:
         Returns:
             [float] -- [specific gravity, eg. 1.012]
         """
-
         sg = 1 + (plato / (258.6 - ((plato / 258.2) * 227.1)))
-        return round(sg, 3)
+        return round(sg, 4)
 
     @staticmethod
     def calc_abv(og, fg):
@@ -54,6 +51,5 @@ class Unit:
         Returns:
             [float] -- [Alcohol By Volume in percentage, eg. 5.65%]
         """
-
-        abv = (og - fg) * 131.52
+        abv = (og - fg) * 131.25
         return round(abv, 2)

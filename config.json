@@ -1,8 +1,0 @@
-{
-    "gy521_pins": {
-        "sda": 4,
-        "scl": 5
-    },
-    "deepsleep_interval": 900,
-    "ap_ssid": "Hydrometer"
-}

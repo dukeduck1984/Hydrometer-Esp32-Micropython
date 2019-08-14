@@ -1,8 +1,3 @@
-#
-#  For Wemos D1 Mini (ESP8266)
-#
-
-
 import machine
 import utime
 
@@ -13,10 +8,9 @@ class Battery:
     NOTE: There is only 1 ADC pin on Wemos D1 mini which is the A0 pin
     """
 
-    def __init__(self):
-        self.adc = machine.ADC(0)
+    def __init__(self, adc_pin):
+        self.adc = machine.ADC(machine.Pin(adc_pin))
         self.lipo_percent = None
-
     
     def measure_lipo_level(self):
         """
@@ -45,16 +39,14 @@ class Battery:
 
         return self.lipo_percent
 
+    def get_lipo_level(self):
+        """Return last measured lipo level
 
-def get_lipo_level(self):
-    """Return last measured lipo level
-    
-    Returns:
-        [int] -- [lipo level percentage, eg. 85, unit is %]
-    """
-
-    if self.lipo_percent:
-        return self.lipo_percent
-    else:
-        return self.measure_lipo_level()
+        Returns:
+            [int] -- [lipo level percentage, eg. 85, unit is %]
+        """
+        if self.lipo_percent:
+            return self.lipo_percent
+        else:
+            return self.measure_lipo_level()
 
