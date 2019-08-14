@@ -1,4 +1,4 @@
-# hydrometer_esp32_micropython
+# Hydrometer-Esp32-Micropython
 A digital wireless hydrometer inspired by Tilt & iSpindel.  Powered by Micropython ESP32.
 
 ### Features
