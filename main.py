@@ -89,7 +89,8 @@ if machine.reset_cause() == machine.DEEPSLEEP_RESET and not mode_switch.value():
 # 首次进入工作模式，15分钟后唤醒正式开始采集数据，以便让比重计在液体内稳定下来
 elif not machine.reset_cause() == machine.DEEPSLEEP_RESET and not mode_switch.value():
     print('First time entering Working Mode...')
-    utime.sleep(3)
+    print('Will go to Deep-Sleep now and will wake up in 15min to get the first measurement.')
+    utime.sleep(5)
     machine.deepsleep(15*60*1000)
 # 校准模式
 else:
