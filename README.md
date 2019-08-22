@@ -148,3 +148,98 @@ chartDataSeries: {
      }]
  });
 ```
+
+## API
+
+### /connecttest
+* GET
+前台每2秒向后台请求，确认前后台之间的连接正常
+
+### /calibration
+* GET
+读取比重计倾角数据，前台每10秒请求一次
+```json5
+{
+  "tilt": 76.3
+}
+```
+
+* POST
+前台向后台传递拟合后的系数，并进行保存
+```json5
+{
+  "unit": "p",
+  "a": 0.016695786886914407,
+  "b": -1.7010962658032376,
+  "c": 0.016695786886914407
+}
+```
+
+### /settings
+* GET
+```json5
+{
+  "apSsid": "Hydrometer",
+  "wifi": {
+    "ssid": "",
+    "pass": ""
+  },
+  "fermenterAp": {
+    "ssid": "",
+    "pass": ""
+  },
+  "deepSleepIntervalMinute": 20,
+  "deepSleepIntervalMs": 1200000,
+  "wifiList": [
+    "28#301",
+    "28#301_ASUS",
+    "Fermenter",
+    "ChinaNet1234",
+    "ChinaNet4542",
+    "UnionCom8876"
+  ]
+}
+```
+
+* POST
+```json5
+{
+  "apSsid": "Hydrometer",
+  "wifi": {
+    "ssid": "ChinaNet4542",
+    "pass": "12345678"
+  },
+  "fermenterAp": {
+    "ssid": "Fermenter",
+    "pass": ""
+  },
+  "deepSleepIntervalMinute": 20,
+}
+```
+
+### /wifi
+* GET
+```json5
+{
+  "wifiList": [
+    "28#301",
+    "28#301_ASUS",
+    "Fermenter",
+    "ChinaNet1234",
+    "ChinaNet4542",
+    "UnionCom8876"
+  ]
+}
+```
+
+* POST
+```json5
+{
+  "ssid": "ChinaNet4542",
+  "pass": "12345678"
+}
+```
+
+### /reboot
+* GET
+

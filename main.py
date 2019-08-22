@@ -84,7 +84,7 @@ if machine.reset_cause() == machine.DEEPSLEEP_RESET and not mode_switch.value():
         send_data = MicroWebCli.JSONRequest('http://192.168.4.1/gravity', o=data, connTimeoutSec=10)
     finally:
     # 6. Go deep sleep again, and will wake up after sometime to repeat above.
-        machine.deepsleep(settings['deepsleepIntervalMs'])
+        machine.deepsleep(settings['deepSleepIntervalMs'])
 
 # 首次进入工作模式，15分钟后唤醒正式开始采集数据，以便让比重计在液体内稳定下来
 elif not machine.reset_cause() == machine.DEEPSLEEP_RESET and not mode_switch.value():
@@ -96,7 +96,7 @@ else:
     print('Entering Calibration Mode...')
     print('--------------------')
 
-    # 1. Turn on the led to indicate calibration mode
+    # 1. Turn on the on-board green led to indicate calibration mode
     led = machine.Pin(config['led_pin'], machine.Pin.OUT)
     led.on()
 

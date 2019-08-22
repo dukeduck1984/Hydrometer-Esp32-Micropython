@@ -117,7 +117,7 @@ class HttpServer:
                 httpResponse.WriteResponseInternalServerError()
 
         # Initialize the Web server
-        self.app = MicroWebSrv(webPath='/sd/www')
+        self.app = MicroWebSrv(webPath='/www')
         self.app.Start(threaded=True)  # Starts the server
 
     def stop(self):

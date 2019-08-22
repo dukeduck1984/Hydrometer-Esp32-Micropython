@@ -1,5 +1,5 @@
 {
-  "deepsleepIntervalMs": 1200000,
+  "deepSleepIntervalMs": 1200000,
   "apSsid": "Hydrometer",
   "wifi": {
     "ssid": "",
