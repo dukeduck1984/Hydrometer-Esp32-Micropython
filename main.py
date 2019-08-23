@@ -76,12 +76,13 @@ if machine.reset_cause() == machine.DEEPSLEEP_RESET and not mode_switch.value():
             sg = unit.plato2sg(gravity)
         else:
             sg = round(gravity, 4)
-        data = {
-            'sg': sg,
-            'battery': battery_percent
+        hydrometer_dict = {
+            'currentGravity': sg,
+            'batteryLevel': battery_percent,
+            'updateIntervalSec': int(settings['deepSleepIntervalMs'] / 1000)
         }
     # 5. Send Specific Gravity data & battery level to Fermenter ESP32 by HTTP
-        send_data = MicroWebCli.JSONRequest('http://192.168.4.1/gravity', o=data, connTimeoutSec=10)
+        send_data = MicroWebCli.JSONRequest('http://192.168.4.1/gravity', o=hydrometer_dict, connTimeoutSec=10)
     finally:
     # 6. Go deep sleep again, and will wake up after sometime to repeat above.
         machine.deepsleep(settings['deepSleepIntervalMs'])
