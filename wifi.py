@@ -91,6 +91,7 @@ class WiFi:
                             pass
                     else:
                         return None
+                    break
                 print('Connecting to "' + ap_ssid + '"...')
                 self.sta.connect(ap_ssid, ap_pass)
                 while not self.sta.isconnected() and utime.ticks_diff(utime.ticks_ms(), start) < timeout:
