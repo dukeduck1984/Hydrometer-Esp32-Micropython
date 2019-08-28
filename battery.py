@@ -3,11 +3,6 @@ import utime
 
 
 class Battery:
-    """For Wemos D1 mini ONLY
-    
-    NOTE: There is only 1 ADC pin on Wemos D1 mini which is the A0 pin
-    """
-
     def __init__(self, adc_pin):
         self.adc = machine.ADC(machine.Pin(adc_pin))
         self.lipo_percent = None
@@ -25,23 +20,25 @@ class Battery:
         """
         mv_max = 758
         mv_min = 567
-        # ADC read value should be 776 when battery is full at 4.2v
-        val_max = mv_max / 1000 * 1024
-        # ADC read value should be 581 when battery is empty at 3.14v
-        val_min = mv_min / 1000 * 1024
-        # read value for 5 times, returned value 0-1024 equals 0-1000mv
-        adc_values = [self.adc.read() for _ in range(5)]
-        adc_values.sort()
-        adc_values = adc_values[1:4]
-        adc_value = sum(adc_values) / len(adc_values)
-        
+        # ADC read value should be 3104 when battery is full at 4.2v
+        val_max = int(mv_max / 1000 * 4095)
+        # ADC read value should be 2321 when battery is empty at 3.14v
+        val_min = int(mv_min / 1000 * 4095)
+        # # read value for 5 times, returned value 0-4095 equals 0-1000mv
+        # adc_values = [self.adc.read() for _ in range(5)]
+        # adc_values.sort()
+        # adc_values = adc_values[1:4]
+        # adc_value = sum(adc_values) / len(adc_values)
+        adc_value = self.adc.read()
         self.lipo_percent = int(round((adc_value - val_min) / (val_max - val_min) * 100, 0))
-
+        if self.lipo_percent > 100:
+            self.lipo_percent = 100
+        if self.lipo_percent < 0:
+            self.lipo_percent = 0
         return self.lipo_percent
 
     def get_lipo_level(self):
         """Return last measured lipo level
-
         Returns:
             [int] -- [lipo level percentage, eg. 85, unit is %]
         """
@@ -49,4 +46,3 @@ class Battery:
             return self.lipo_percent
         else:
             return self.measure_lipo_level()
-

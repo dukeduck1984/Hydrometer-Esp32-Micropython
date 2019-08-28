@@ -1,9 +1,9 @@
 {
   "gy521_pins": {
     "sda": 4,
-    "scl": 5
+    "scl": 0
   },
-  "battery_adc_pin": 20,
-  "mode_switch_pin": 23,
+  "battery_adc_pin": 32,
+  "mode_switch_pin": 25,
   "led_pin": 21
 }

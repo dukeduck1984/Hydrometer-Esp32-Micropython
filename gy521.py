@@ -37,7 +37,7 @@ class GY521:
         else:
             return self.measured_angles
 
-    def get_smoothed_angles(self, sec=3):
+    def get_smoothed_angles(self, samples=3):
         """Calculate smoothed tilt angles
         
         Keyword Arguments:
@@ -46,17 +46,15 @@ class GY521:
         Returns:
             [tuple] -- [smoothed tilt angles for 3 axis, unit is degree]
         """
-        if isinstance(sec, int):
+        if isinstance(samples, int):
             a = []
             b = []
             c = []
-            for _ in range(sec):
+            for _ in range(samples):
                 x, y, z = self.get_tilt_angles()
-                utime.sleep_ms(400)
                 a.append(x)
                 b.append(y)
                 c.append(z)
-                utime.sleep_ms(400)
 
             def calc_avg(li):
                 return round(sum(li) / len(li), 2)

@@ -46,6 +46,12 @@ class WiFi:
         else:
             return None
 
+    def get_sta_ssid(self):
+        if self.sta.isconnected():
+            return self.sta.config('essid')
+        else:
+            return None
+
     def scan_wifi_list(self):
         """
         Scan and return a list of available Access Points
@@ -68,41 +74,40 @@ class WiFi:
             if not self.verify_ap(ap_ssid):
                 print('Network "' + ap_ssid + '" does not present')
                 return None
+        # Disconnect current wifi network
+        if self.sta.isconnected():
+            print('Disconnecting from current network...')
+            self.sta.disconnect()
+            utime.sleep(1)
+            self.sta.active(False)
+            utime.sleep_ms(200)
+            self.sta.active(True)
+            utime.sleep_ms(200)
+        start = utime.ticks_ms()
+        timeout = 10000
+        while not self.sta.isconnected():
+            if utime.ticks_diff(utime.ticks_ms(), start) > timeout:
+                print('Connecting to "' + ap_ssid + '" Timeout')
+                if self.ssid and self.pwd:
+                    print('Restore the connection with "' + self.ssid + '"')
+                    try:
+                        self.sta_connect(self.ssid, self.pwd)
+                    except:
+                        pass
+                else:
+                    return None
+                break
+            print('Connecting to "' + ap_ssid + '"...')
+            self.sta.connect(ap_ssid, ap_pass)
+            while not self.sta.isconnected() and utime.ticks_diff(utime.ticks_ms(), start) < timeout:
+                print('Connecting...')
+                utime.sleep_ms(1500)
         else:
-            # Disconnect current wifi network
-            if self.sta.isconnected():
-                print('Disconnecting from current network...')
-                self.sta.disconnect()
-                utime.sleep(1)
-                self.sta.active(False)
-                utime.sleep_ms(200)
-                self.sta.active(True)
-                utime.sleep_ms(200)
-            start = utime.ticks_ms()
-            timeout = 10000
-            while not self.sta.isconnected():
-                if utime.ticks_diff(utime.ticks_ms(), start) > timeout:
-                    print('Connecting to "' + ap_ssid + '" Timeout')
-                    if self.ssid and self.pwd:
-                        print('Restore the connection with "' + self.ssid + '"')
-                        try:
-                            self.sta.connect(self.ssid, self.pwd)
-                        except:
-                            pass
-                    else:
-                        return None
-                    break
-                print('Connecting to "' + ap_ssid + '"...')
-                self.sta.connect(ap_ssid, ap_pass)
-                while not self.sta.isconnected() and utime.ticks_diff(utime.ticks_ms(), start) < timeout:
-                    print('Connecting...')
-                    utime.sleep_ms(500)
-            else:
-                print('Network "' + ap_ssid + '" Connected!')
-                # if successfully connected, store the SSID & Password
-                self.ssid = ap_ssid
-                self.pwd = ap_pass
-                return self.get_sta_ip_addr()
+            print('Network "' + ap_ssid + '" Connected!')
+            # if successfully connected, store the SSID & Password
+            self.ssid = ap_ssid
+            self.pwd = ap_pass
+            return self.get_sta_ip_addr()
 
     def is_connected(self):
         return self.sta.isconnected()
