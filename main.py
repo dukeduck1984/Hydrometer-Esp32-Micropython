@@ -52,38 +52,69 @@ if machine.reset_cause() == machine.DEEPSLEEP_RESET:
         sta_ip_addr = wifi.sta_connect(settings['fermenterAp']['ssid'], settings['fermenterAp']['pass'])
         if sta_ip_addr:
             print('STA IP: ' + sta_ip_addr)
+    else:
+        print('Pls set up the Wifi connection with the Fermenter first.')
+        print('Entering Calibration Mode in 5sec...')
+        utime.sleep_ms(5000)
+        machine.reset()
     print('--------------------')
     # 2. Measure Lipo battery level
     battery_percent = battery.get_lipo_level()
     # 3. Measure tilt angle
     try:
         _, tilt, _ = gy521.get_smoothed_angles()
-        # _, tilt, _ = gy521.get_tilt_angles()
     except:
         pass
     else:
-        print('Tilt Angle: ' + str(tilt) + 'degree')
-        print('Battery: ' + str(battery_percent) + '%')
-        print('will go to sleep again in 15s')
-        utime.sleep(15)
-    # # 4. Calculate Specific Gravity
-    #     with open('regression.json', 'r') as f:
-    #         json = f.read()
-    #     reg = ujson.loads(json)
-    #     gravity = reg['a'] * tilt**2 + reg['b'] * tilt + reg['c']
-    #     unit = Unit()
-    #     if reg['unit'] == 'p':
-    #         sg = unit.plato2sg(gravity)
-    #     else:
-    #         sg = round(gravity, 4)
-    #     hydrometer_dict = {
-    #         'currentGravity': sg,
-    #         'batteryLevel': battery_percent,
-    #         'updateIntervalSec': int(settings['deepSleepIntervalMs'] / 1000)
-    #     }
-    # # 5. Send Specific Gravity data & battery level to Fermenter ESP32 by HTTP
-    #     send_data = MicroWebCli.JSONRequest('http://192.168.4.1/gravity', o=hydrometer_dict, connTimeoutSec=10)
-    finally:
+    # 4. Calculate Specific Gravity
+        with open('regression.json', 'r') as f:
+            json = f.read()
+        reg = ujson.loads(json)
+        if not (reg['a'] and reg['b'] and reg['c']):
+            print('The Hydrometer should be calibrated before use.')
+            print('Entering Calibration Mode in 5sec...')
+            utime.sleep_ms(5000)
+            machine.reset()
+        gravity = reg['a'] * tilt**2 + reg['b'] * tilt + reg['c']
+        unit = Unit()
+        if reg['unit'] == 'p':
+            sg = unit.plato2sg(gravity)
+        else:
+            sg = round(gravity, 4)
+        hydrometer_dict = {
+            'currentGravity': sg,
+            'batteryLevel': battery_percent,
+            'updateIntervalSec': int(settings['deepSleepIntervalMs'] / 1000)
+        }
+        # print(hydrometer_dict)
+    # 5. Send Specific Gravity data & battery level to Fermenter ESP32 by HTTP
+        cli = MicroWebCli(
+            url='http://192.168.4.1/gravity',
+            # url='https://d298e187-360a-4b3a-8cd9-be60857ad33a.mock.pstmn.io/gravity',
+            method='POST',
+            connTimeoutSec=10
+        )
+        req_counter = 0
+        while req_counter < 3:
+            print('Sending hydrometer data to the fermenter...')
+            try:
+                cli.OpenRequestJSONData(o=hydrometer_dict)
+            except:
+                print('Error: Cannot reach the server.')
+                print('Will retry in 3sec...')
+                utime.sleep_ms(3000)
+                req_counter += 1
+            else:
+                resp = cli.GetResponse()
+                if not resp.IsSuccess():
+                    print('Error ' + str(resp.GetStatusCode()) + ': ' + resp.GetStatusMessage())
+                    print('Will retry in 3sec...')
+                    utime.sleep_ms(3000)
+                    req_counter += 1
+                    print('Retry #' + str(req_counter))
+                else:
+                    print('Data sent successfully!')
+                    break
     # 6. Go deep sleep again, and will wake up after sometime to repeat above.
         print('Sleeping now...')
         machine.deepsleep(settings['deepSleepIntervalMs'])
