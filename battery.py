@@ -12,19 +12,18 @@ class Battery:
         wiring diagram: https://learn.adafruit.com/using-ifttt-with-adafruit-io/wiring#battery-tracking
         measure lipo battery level by ADC
         lipo battery level 4.2V - 3.14V
-        the 1M & 220K voltage divider bring the battery voltage down to 758mV max ~ 567mV min
-        the ADC read will be performed for 5 times and get rid of the max & min, then get the avg value
+        the 1M & 300K voltage divider bring the battery voltage down to 969mV max ~ 725mV min
 
         Returns:
             [int] -- [lipo level percentage, eg. 85, unit is %]
         """
-        mv_max = 758
-        mv_min = 567
-        # ADC read value should be 3104 when battery is full at 4.2v
-        val_max = int(mv_max / 1000 * 4095)
-        # ADC read value should be 2321 when battery is empty at 3.14v
-        val_min = int(mv_min / 1000 * 4095)
-        # # read value for 5 times, returned value 0-4095 equals 0-1000mv
+        mv_max = 969
+        mv_min = 725
+        # ADC read value should be 3306 when battery is full at 4.2v
+        val_max = int(mv_max / 1200 * 4095)
+        # ADC read value should be 2474 when battery is empty at 3.14v
+        val_min = int(mv_min / 1200 * 4095)
+        # # read value for 5 times, returned value 0-4095 equals 0-1200mv
         # adc_values = [self.adc.read() for _ in range(5)]
         # adc_values.sort()
         # adc_values = adc_values[1:4]

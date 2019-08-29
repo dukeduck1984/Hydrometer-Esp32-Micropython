@@ -110,16 +110,16 @@ elif machine.reset_cause() == machine.SOFT_RESET:
             print('STA IP: ' + sta_ip_addr)
     print('--------------------')
 
-    # 3. Measure tilt angle every 5s in the background
+    # 3. Measure tilt angle every 3s in the background
     import _thread
 
     def measure_tilt():
         while True:
             try:
-                gy521.get_tilt_angles()
+                gy521.get_smoothed_angles()
             except:
                 print('Error occurs when measuring tilt angles')
-            utime.sleep(5)
+            utime.sleep_ms(3000)
 
     tilt_th = _thread.start_new_thread(measure_tilt, ())
 
