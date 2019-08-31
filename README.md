@@ -19,22 +19,25 @@ A digital wireless hydrometer inspired by Tilt & iSpindel.  Powered by Micropyth
 ```
 - [X] 校准模式下，ESP32每5秒读取一次倾角角度。
 - [X] 校准模式下，设置选项包括：设置比重计自己的AP名称，设置连接发酵箱的Wifi信号，设置连接路由器wifi型号，设置工作模式下的唤醒（采样）频率（默认每20分钟1次）。
-- [X] 工作模式：开启STA，仅提供http client服务，根据唤醒频率设置自动唤醒向发酵箱发送：SG比重数据（发送给发酵箱的比重数据统一为SG），电量百分比，格式如下。
+- [X] 工作模式下，根据用户设置的数据发送去向，开启STA，连接发酵箱AP信号（数据发至发酵箱），或家中无线路由信号（数据发至MQTT服务器）
+- [X] 工作模式下，根据唤醒频率设置自动唤醒发送比重数据和电量。
+- [X] 发送到发酵箱后台的数据如下
+```
+{
+  "currentGravity": 1.057,
+  "batteryLevel": 60,
+  "updateIntervalSec": 1200
+}
+// *注意：发酵箱显示的比重默认单位为sg，读取比重计数据时要先根据情况转换单位。
+```
+- [X] 发送至MQTT服务器的数据如下
 ```
 {
   "sg": 1.057,
   "battery": 60
 }
 ```
-- [X] 工作模式下，数据发送到发酵箱后台，再由发酵箱前台读取。
-```
-{
-  sg: 1.017,
-  battery: 55,
-}
-// *注意：发酵箱显示的比重默认单位为sg，读取比重计数据时要先根据情况转换单位。
-```
-- [ ] 另外，比重数据需要记录，如下gravityDataList
+- [X] 另外，比重数据需要记录，如下gravityDataList (此任务由发酵箱的前端完成)
 ```
 chartDataSeries: {
   setTempDataList: [],
@@ -179,19 +182,28 @@ chartDataSeries: {
 
 ### /settings
 * GET
+向后台获取用户设置参数
 ```json5
 {
+  "deepSleepIntervalMs": 10000,
   "apSsid": "Hydrometer",
   "wifi": {
     "ssid": "",
     "pass": ""
   },
   "fermenterAp": {
-    "ssid": "",
+    "enabled": true,
+    "ssid": "Fermenter",
     "pass": ""
   },
-  "deepSleepIntervalMinute": 20,
-  "deepSleepIntervalMs": 1200000,
+  "mqtt": {
+    "enabled": false,
+    "brokerAddr": "things.ubidots.com",
+    "brokerPort": 1883,
+    "username": "BBA-DASKLFJELFEL5646566WW",
+    "password": "",
+    "topic": "/v1.6/devices/hydrometer"
+  },
   "wifiList": [
     "28#301",
     "28#301_ASUS",
@@ -204,23 +216,34 @@ chartDataSeries: {
 ```
 
 * POST
+向后台发送用户设置参数并保存
 ```json5
 {
+  "deepSleepIntervalMs": 10000,
   "apSsid": "Hydrometer",
   "wifi": {
-    "ssid": "ChinaNet4542",
-    "pass": "12345678"
+    "ssid": "",
+    "pass": ""
   },
   "fermenterAp": {
+    "enabled": true,
     "ssid": "Fermenter",
     "pass": ""
   },
-  "deepSleepIntervalMinute": 20,
+  "mqtt": {
+    "enabled": false,
+    "brokerAddr": "things.ubidots.com",
+    "brokerPort": 1883,
+    "username": "BBA-DASKLFJELFEL5646566WW",
+    "password": "",
+    "topic": "/v1.6/devices/hydrometer"
+  }
 }
 ```
 
 ### /wifi
 * GET
+获取Wifi热点列表
 ```json5
 {
   "wifiList": [
@@ -235,10 +258,27 @@ chartDataSeries: {
 ```
 
 * POST
+连接指定Wifi热点
 ```json5
 {
   "ssid": "ChinaNet4542",
   "pass": "12345678"
+}
+```
+
+### /mqtttest
+向MQTT服务器发送测试信息
+* POST
+```json5
+{
+"mqtt": {
+    "enabled": true,
+    "brokerAddr": "things.ubidots.com",
+    "brokerPort": 1883,
+    "username": "BBA-DASKLFJELFEL5646566WW",
+    "password": "",
+    "topic": "/v1.6/devices/hydrometer"
+  }
 }
 ```
 
