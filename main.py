@@ -6,7 +6,6 @@ import utime
 from battery import Battery
 from gy521 import GY521
 from microWebCli import MicroWebCli
-from unit_convert import Unit
 from wifi import WiFi
 
 # disable os debug info
@@ -85,14 +84,13 @@ if machine.reset_cause() == machine.DEEPSLEEP_RESET:
             utime.sleep_ms(5000)
             machine.reset()
         gravity = reg['a'] * tilt**2 + reg['b'] * tilt + reg['c']
-        unit = Unit()
         if reg['unit'] == 'p':
-            sg = unit.plato2sg(gravity)
+            sg = round(1 + (gravity / (258.6 - ((gravity / 258.2) * 227.1))), 3)
         else:
             sg = round(gravity, 4)
 
         if send_data_to_mqtt:
-            from mqtt_client import MQTT
+            from wifi import MQTT
 
             hydrometer_dict = {
                 'sg': sg,

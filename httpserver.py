@@ -136,7 +136,7 @@ class HttpServer:
             settings_dict = httpClient.ReadRequestContentAsJSON()
             test_msg = {'test-message': 200}
             str_data = ujson.dumps(test_msg)
-            from mqtt_client import MQTT
+            from wifi import MQTT
             try:
                 client = MQTT(settings_dict)
                 client.publish(str_data)
