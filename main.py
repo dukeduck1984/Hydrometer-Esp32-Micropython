@@ -47,13 +47,22 @@ print('--------------------')
 # 工作模式（定时deep-sleep）
 if machine.reset_cause() == machine.DEEPSLEEP_RESET:
     print('Entering Working Mode...')
-    # 1. Start WLAN in STA mode and connect to Fermenter ESP32 AP
-    if settings['fermenterAp']['ssid']:
-        sta_ip_addr = wifi.sta_connect(settings['fermenterAp']['ssid'], settings['fermenterAp']['pass'])
+    send_data_to_fermenter = settings['fermenterAP']['enabled']
+    send_data_to_mqtt = settings['mqtt']['enabled']
+    # 1. Start WLAN in STA mode and connect to AP
+    if send_data_to_mqtt:
+        ssid = settings['wifi'].get('ssid')
+        pswd = settings['wifi'].get('padd')
+    else:
+        ssid = settings['fermenterAp'].get('ssid')
+        pswd = settings['fermenterAp'].get('padd')
+
+    if ssid:
+        sta_ip_addr = wifi.sta_connect(ssid, pswd)
         if sta_ip_addr:
             print('STA IP: ' + sta_ip_addr)
     else:
-        print('Pls set up the Wifi connection with the Fermenter first.')
+        print('Pls set up the Wifi connection first.')
         print('Entering Calibration Mode in 5sec...')
         utime.sleep_ms(5000)
         machine.reset()
@@ -81,40 +90,53 @@ if machine.reset_cause() == machine.DEEPSLEEP_RESET:
             sg = unit.plato2sg(gravity)
         else:
             sg = round(gravity, 4)
-        hydrometer_dict = {
-            'currentGravity': sg,
-            'batteryLevel': battery_percent,
-            'updateIntervalSec': int(settings['deepSleepIntervalMs'] / 1000)
-        }
-        # print(hydrometer_dict)
-    # 5. Send Specific Gravity data & battery level to Fermenter ESP32 by HTTP
-        cli = MicroWebCli(
-            url='http://192.168.4.1/gravity',
-            # url='https://d298e187-360a-4b3a-8cd9-be60857ad33a.mock.pstmn.io/gravity',
-            method='POST',
-            connTimeoutSec=10
-        )
-        req_counter = 0
-        while req_counter < 3:
-            print('Sending hydrometer data to the fermenter...')
-            try:
-                cli.OpenRequestJSONData(o=hydrometer_dict)
-            except:
-                print('Error: Cannot reach the server.')
-                print('Will retry in 3sec...')
-                utime.sleep_ms(3000)
-                req_counter += 1
-            else:
-                resp = cli.GetResponse()
-                if not resp.IsSuccess():
-                    print('Error ' + str(resp.GetStatusCode()) + ': ' + resp.GetStatusMessage())
+
+        if send_data_to_mqtt:
+            from mqtt_client import MQTT
+
+            hydrometer_dict = {
+                'sg': sg,
+                'battery': battery_percent
+            }
+            mqtt_data = ujson.dumps(hydrometer_dict)
+
+            mqtt_client = MQTT(settings)
+            mqtt_client.publish(mqtt_data)
+        else:
+            hydrometer_dict = {
+                'currentGravity': sg,
+                'batteryLevel': battery_percent,
+                'updateIntervalSec': int(settings['deepSleepIntervalMs'] / 1000)
+            }
+            # print(hydrometer_dict)
+        # 5. Send Specific Gravity data & battery level to Fermenter ESP32 by HTTP
+            cli = MicroWebCli(
+                url='http://192.168.4.1/gravity',
+                # url='https://d298e187-360a-4b3a-8cd9-be60857ad33a.mock.pstmn.io/gravity',
+                method='POST',
+                connTimeoutSec=10
+            )
+            req_counter = 0
+            while req_counter < 3:
+                print('Sending hydrometer data to the fermenter...')
+                try:
+                    cli.OpenRequestJSONData(o=hydrometer_dict)
+                except:
+                    print('Error: Cannot reach the server.')
                     print('Will retry in 3sec...')
                     utime.sleep_ms(3000)
                     req_counter += 1
-                    print('Retry #' + str(req_counter))
                 else:
-                    print('Data sent successfully!')
-                    break
+                    resp = cli.GetResponse()
+                    if not resp.IsSuccess():
+                        print('Error ' + str(resp.GetStatusCode()) + ': ' + resp.GetStatusMessage())
+                        print('Will retry in 3sec...')
+                        utime.sleep_ms(3000)
+                        req_counter += 1
+                        print('Retry #' + str(req_counter))
+                    else:
+                        print('Data sent successfully!')
+                        break
     # 6. Go deep sleep again, and will wake up after sometime to repeat above.
         print('Sleeping now...')
         machine.deepsleep(settings['deepSleepIntervalMs'])

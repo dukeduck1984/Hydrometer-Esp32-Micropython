@@ -57,8 +57,7 @@ class HttpServer:
             """
             wifi_list = wifi.scan_wifi_list()
             settings_added = {
-                'wifiList': wifi_list,
-                'deepSleepIntervalMinute': settings.get('deepSleepIntervalMs') / 1000 // 60
+                'wifiList': wifi_list
             }
             settings_combined = settings.copy()
             settings_combined.update(settings_added)
@@ -70,8 +69,6 @@ class HttpServer:
             向后台保存设置参数
             """
             settings_dict = httpClient.ReadRequestContentAsJSON()
-            settings_dict['deepSleepIntervalMs'] = settings_dict['deepSleepIntervalMinute'] * 60 *1000
-            settings_dict.pop('deepSleepIntervalMinute')
             try:
                 with open('user_settings.json', 'w') as f:
                     ujson.dump(settings_dict, f)
@@ -115,6 +112,40 @@ class HttpServer:
             else:
                 # throw 500 error code
                 httpResponse.WriteResponseInternalServerError()
+
+        @MicroWebSrv.route('/ftp')
+        def ftp_get(httpClient, httpResponse):
+            """
+            Start FTP service
+            """
+            print('Initializing FTP service...')
+            try:
+                import uftpd
+            except:
+                print('Failed to start FTP service.')
+                httpResponse.WriteResponseInternalServerError()
+            else:
+                print('FTP service has started.')
+                httpResponse.WriteResponseOk()
+
+        @MicroWebSrv.route('/mqtttest', 'POST')
+        def mqtt_post(httpClient, httpResponse):
+            """
+            Send test message to MQTT server
+            """
+            settings_dict = httpClient.ReadRequestContentAsJSON()
+            test_msg = {'test-message': 200}
+            str_data = ujson.dumps(test_msg)
+            from mqtt_client import MQTT
+            try:
+                mqtt_client = MQTT(settings_dict)
+                mqtt_client.publish(str_data)
+            except:
+                print('Failed to send the message to the MQTT broker.')
+                httpResponse.WriteResponseInternalServerError()
+            else:
+                print('The test message has been sent successfully.')
+                httpResponse.WriteResponseOk()
 
         # Initialize the Web server
         self.app = MicroWebSrv(webPath='/www')
