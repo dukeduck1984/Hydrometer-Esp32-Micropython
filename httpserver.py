@@ -138,8 +138,8 @@ class HttpServer:
             str_data = ujson.dumps(test_msg)
             from mqtt_client import MQTT
             try:
-                mqtt_client = MQTT(settings_dict)
-                mqtt_client.publish(str_data)
+                client = MQTT(settings_dict)
+                client.publish(str_data)
             except:
                 print('Failed to send the message to the MQTT broker.')
                 httpResponse.WriteResponseInternalServerError()

@@ -100,8 +100,8 @@ if machine.reset_cause() == machine.DEEPSLEEP_RESET:
             }
             mqtt_data = ujson.dumps(hydrometer_dict)
 
-            mqtt_client = MQTT(settings)
-            mqtt_client.publish(mqtt_data)
+            client = MQTT(settings)
+            client.publish(mqtt_data)
         else:
             hydrometer_dict = {
                 'currentGravity': sg,
@@ -176,16 +176,7 @@ elif machine.reset_cause() == machine.SOFT_RESET:
 
     tilt_th = _thread.start_new_thread(measure_tilt, ())
 
-    # 4. Set up DNS Server
-    from microDNSSrv import MicroDNSSrv
-
-    if MicroDNSSrv.Create({'*': '192.168.4.1'}):
-        print("DNS service started.")
-    else:
-        print("Error to start MicroDNSSrv...")
-    print('--------------------')
-
-    # 6. Set up HTTP Server
+    # 4. Set up HTTP Server
     from httpserver import HttpServer
 
     web = HttpServer(gy521, wifi, settings)
