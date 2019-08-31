@@ -75,7 +75,7 @@ if machine.reset_cause() == machine.DEEPSLEEP_RESET:
     else:
         sg = round(gravity, 4)
     if send_data_to_mqtt:
-        from wifi import MQTT
+        from mqtt_client import MQTT
         hydrometer_dict = {
             'sg': sg,
             'battery': battery_percent
