@@ -88,7 +88,7 @@ if machine.reset_cause() == machine.DEEPSLEEP_RESET:
         hydrometer_dict = {
             'currentGravity': sg,
             'batteryLevel': battery_percent,
-            'updateIntervalSec': int(settings['deepSleepIntervalMs'] / 1000)
+            'updateIntervalMs': int(settings['deepSleepIntervalMs'])
         }
     # 5. Send Specific Gravity data & battery level to Fermenter ESP32 by HTTP
         cli = MicroWebCli(
