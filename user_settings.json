@@ -14,7 +14,7 @@
     "enabled": false,
     "brokerAddr": "things.ubidots.com",
     "brokerPort": 1883,
-    "username": "YOUR-UBiDotStOkenHeRE",
+    "username": "YOUR-UbiDotsTokenHere",
     "password": "",
     "topic": "/v1.6/devices/hydrometer"
   }
