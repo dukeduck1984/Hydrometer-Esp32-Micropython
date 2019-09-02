@@ -22,6 +22,7 @@ class WiFi:
         self.ap.active(True)  # activate the AP interface
         utime.sleep_ms(200)
         self.ap.config(essid=ssid)
+        #self.ap.config(essid=ssid + self.machine_id)  # set ssid
         utime.sleep_ms(200)
         return self.get_ap_ip_addr()
 
