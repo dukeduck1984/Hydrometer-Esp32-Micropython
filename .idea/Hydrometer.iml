@@ -8,9 +8,7 @@
       <configuration />
     </facet>
     <facet type="MicroPython" name="MicroPython">
-      <configuration>
-        <device name="ESP8266" />
-      </configuration>
+      <configuration />
     </facet>
   </component>
   <component name="NewModuleRootManager">
