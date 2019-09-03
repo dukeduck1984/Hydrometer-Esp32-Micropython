@@ -74,50 +74,52 @@ if machine.reset_cause() == machine.DEEPSLEEP_RESET:
         sg = round(1 + (gravity / (258.6 - ((gravity / 258.2) * 227.1))), 3)
     else:
         sg = round(gravity, 4)
-    if send_data_to_mqtt:
-        from mqtt_client import MQTT
-        hydrometer_dict = {
-            'sg': sg,
-            'battery': battery_percent
-        }
-        mqtt_data = ujson.dumps(hydrometer_dict)
 
-        client = MQTT(settings)
-        client.publish(mqtt_data)
-    else:
-        hydrometer_dict = {
-            'currentGravity': sg,
-            'batteryLevel': battery_percent,
-            'updateIntervalMs': int(settings['deepSleepIntervalMs'])
-        }
-    # 5. Send Specific Gravity data & battery level to Fermenter ESP32 by HTTP
-        cli = MicroWebCli(
-            url='http://192.168.4.1/gravity',
-            method='POST',
-            connTimeoutSec=10
-        )
-        req_counter = 0
-        while req_counter < 3:
-            print('Sending hydrometer data to the fermenter...')
-            try:
-                cli.OpenRequestJSONData(o=hydrometer_dict)
-            except:
-                print('Error: Cannot reach the server.')
-                print('Will retry in 3sec...')
-                utime.sleep_ms(3000)
-                req_counter += 1
-            else:
-                resp = cli.GetResponse()
-                if not resp.IsSuccess():
-                    print('Error ' + str(resp.GetStatusCode()) + ': ' + resp.GetStatusMessage())
+    if wifi.is_connected():
+        # 5.1. Send Specific Gravity data & battery level by MQTT
+        if send_data_to_mqtt:
+            from mqtt_client import MQTT
+            hydrometer_dict = {
+                'sg': sg,
+                'battery': battery_percent
+            }
+            mqtt_data = ujson.dumps(hydrometer_dict)
+            client = MQTT(settings)
+            client.publish(mqtt_data)
+        # 5.2. Send Specific Gravity data & battery level to Fermenter ESP32 by HTTP
+        else:
+            hydrometer_dict = {
+                'currentGravity': sg,
+                'batteryLevel': battery_percent,
+                'updateIntervalMs': int(settings['deepSleepIntervalMs'])
+            }
+            cli = MicroWebCli(
+                url='http://192.168.4.1/gravity',
+                method='POST',
+                connTimeoutSec=10
+            )
+            req_counter = 0
+            while req_counter < 3:
+                print('Sending hydrometer data to the fermenter...')
+                try:
+                    cli.OpenRequestJSONData(o=hydrometer_dict)
+                except:
+                    print('Error: Cannot reach the server.')
                     print('Will retry in 3sec...')
                     utime.sleep_ms(3000)
                     req_counter += 1
-                    print('Retry #' + str(req_counter))
                 else:
-                    print('Data sent successfully!')
-                    break
-    # 6. Go deep sleep again, and will wake up after sometime to repeat above.
+                    resp = cli.GetResponse()
+                    if not resp.IsSuccess():
+                        print('Error ' + str(resp.GetStatusCode()) + ': ' + resp.GetStatusMessage())
+                        print('Will retry in 3sec...')
+                        utime.sleep_ms(3000)
+                        req_counter += 1
+                        print('Retry #' + str(req_counter))
+                    else:
+                        print('Data sent successfully!')
+                        break
+        # 6. Go deep sleep again, and will wake up after sometime to repeat above.
         print('Sleeping now...')
         machine.deepsleep(settings['deepSleepIntervalMs'])
 # 校准模式
