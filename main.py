@@ -23,7 +23,10 @@ print('File "user_settings.json" has been loaded!')
 print('--------------------')
 # Initialize the GY521 module
 print('Initializing GY521 module')
-gy521 = GY521(config['gy521_pins']['sda'], config['gy521_pins']['scl'])
+try:
+    gy521 = GY521(config['gy521_pins']['sda'], config['gy521_pins']['scl'])
+except Exception as e:
+    print(e)
 # Initialize the battery power management
 print('Initializing power management')
 battery = Battery(config['battery_adc_pin'])
