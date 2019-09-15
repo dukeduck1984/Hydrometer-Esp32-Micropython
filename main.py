@@ -67,13 +67,17 @@ if machine.reset_cause() == machine.DEEPSLEEP_RESET:
     with open('regression.json', 'r') as f:
         json = f.read()
     reg = ujson.loads(json)
-    if not (reg['a'] and reg['b'] and reg['c']):
+    param_a = reg.get('a')
+    param_b = reg.get('b')
+    param_c = reg.get('c')
+    unit = reg.get('unit')
+    if not (param_a and param_b and param_c):
         print('The Hydrometer should be calibrated before use.')
         print('Entering Calibration Mode in 5sec...')
         utime.sleep_ms(5000)
         machine.reset()
-    gravity = reg['a'] * tilt**2 + reg['b'] * tilt + reg['c']
-    if reg['unit'] == 'p':
+    gravity = param_a * tilt**2 + param_b * tilt + param_c
+    if unit == 'p':
         sg = round(1 + (gravity / (258.6 - ((gravity / 258.2) * 227.1))), 3)
     else:
         sg = round(gravity, 4)
@@ -98,8 +102,9 @@ if machine.reset_cause() == machine.DEEPSLEEP_RESET:
             }
             cli = MicroWebCli(
                 url='http://192.168.4.1/gravity',
+                # url='http://192.168.4.1/gravity',  # mock server for testing
                 method='POST',
-                connTimeoutSec=10
+                connTimeoutSec=60
             )
             req_counter = 0
             while req_counter < 3:
