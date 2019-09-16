@@ -46,6 +46,15 @@ chartDataSeries: {
   gravityDataList: [],
 }
 ```
+- [ ] 比重计内增加一个DS18B20温度传感器，根据温度对比重做纠正
+```
+cg = corrected specific gravity
+mg = measured specific gravity
+tr = temperature at time of reading (F)
+tc = calibration temperature of hydrometer (F)
+
+cg = mg * ((1.00130346 - 0.000134722124 * tr + 0.00000204052596 * tr^2 - 0.00000000232820948 * tr^3) / (1.00130346 - 0.000134722124 * tc + 0.00000204052596 * tc^2 - 0.00000000232820948 * tc^3))
+```
 
 ### 使用ecStat绘图，示例代码
 ```javascript
