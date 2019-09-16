@@ -90,6 +90,24 @@ class HttpServer:
             else:
                 httpResponse.WriteResponseOk()
 
+        @MicroWebSrv.route('/deepsleep')
+        def deepsleep_get(httpClient, httpResponse):
+            """
+            使ESP32进入深度睡眠，唤醒后便进入工作模式
+            """
+            query = httpClient.GetRequestQueryParams()
+            if query.get('interval'):
+                wakeup_interval = int(query.get('interval'))
+            else:
+                wakeup_interval = 900000
+            tim = machine.Timer(-1)
+            try:
+                tim.init(period=3000, mode=machine.Timer.ONE_SHOT, callback=lambda t: machine.deepsleep(wakeup_interval))
+            except:
+                httpResponse.WriteResponseInternalServerError()
+            else:
+                httpResponse.WriteResponseOk()
+
         @MicroWebSrv.route('/wifi')
         def wifi_get(httpClient, httpResponse):
             """
