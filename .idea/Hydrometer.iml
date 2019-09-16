@@ -13,7 +13,7 @@
     </facet>
     <facet type="MicroPython" name="MicroPython">
       <configuration>
-        <device name="Micro:bit" />
+        <device name="ESP8266" />
       </configuration>
     </facet>
   </component>
