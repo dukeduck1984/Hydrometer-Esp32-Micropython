@@ -40,15 +40,15 @@ print('--------------------')
 # 工作模式（定时deep-sleep）
 if machine.reset_cause() == machine.DEEPSLEEP_RESET:
     print('Entering Working Mode...')
-    send_data_to_fermenter = settings['fermenterAP']['enabled']
+    send_data_to_fermenter = settings['fermenterAp']['enabled']
     send_data_to_mqtt = settings['mqtt']['enabled']
     # 1. Start WLAN in STA mode and connect to AP
     if send_data_to_mqtt:
         ssid = settings['wifi'].get('ssid')
-        pswd = settings['wifi'].get('padd')
+        pswd = settings['wifi'].get('pass')
     else:
         ssid = settings['fermenterAp'].get('ssid')
-        pswd = settings['fermenterAp'].get('padd')
+        pswd = settings['fermenterAp'].get('pass')
     if ssid:
         sta_ip_addr = wifi.sta_connect(ssid, pswd)
         if sta_ip_addr:
@@ -101,8 +101,8 @@ if machine.reset_cause() == machine.DEEPSLEEP_RESET:
                 'updateIntervalMs': int(settings['deepSleepIntervalMs'])
             }
             cli = MicroWebCli(
-                url='http://192.168.4.1/gravity',
-                # url='http://192.168.4.1/gravity',  # mock server for testing
+                url='http://192.168.4.1/gravity',  # fermenter esp32 api
+                # url='https://ba36095e-b0f1-430a-80a8-e32eb8663be8.mock.pstmn.io/gravity',  # postman mock server for testing
                 method='POST',
                 connTimeoutSec=60
             )

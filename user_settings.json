@@ -1,5 +1,5 @@
 {
-  "deepSleepIntervalMs": 10000,
+  "deepSleepIntervalMs": 900000,
   "apSsid": "Hydrometer",
   "wifi": {
     "ssid": "",
@@ -14,7 +14,7 @@
     "enabled": false,
     "brokerAddr": "things.ubidots.com",
     "brokerPort": 1883,
-    "username": "YOUR-UbiDotsTokenHere",
+    "username": "Your-UbidotsTokenHere",
     "password": "",
     "topic": "/v1.6/devices/hydrometer"
   }
