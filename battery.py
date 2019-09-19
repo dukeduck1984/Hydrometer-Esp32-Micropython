@@ -17,19 +17,21 @@ class Battery:
         Returns:
             [int] -- [lipo level percentage, eg. 85, unit is %]
         """
+        # Voltage Divider Calculator
+        # http://www.ohmslawcalculator.com/voltage-divider-calculator
         mv_max = 969
-        mv_min = 725
-        # ADC read value should be 3306 when battery is full at 4.2v
-        val_max = int(mv_max / 1200 * 4095)
-        # ADC read value should be 2474 when battery is empty at 3.14v
-        val_min = int(mv_min / 1200 * 4095)
-        # # read value for 5 times, returned value 0-4095 equals 0-1200mv
+        mv_min = 692
+        # ADC read value should be 3968 when battery is full at 4.2v
+        adc_value_max = int(mv_max / 1000 * 4095)
+        # ADC read value should be 2833 when battery is empty at 3.0v
+        adc_value_min = int(mv_min / 1000 * 4095)
+        # # read value for 5 times, returned value 0-4095 equals 0-1000mv
         # adc_values = [self.adc.read() for _ in range(5)]
         # adc_values.sort()
         # adc_values = adc_values[1:4]
         # adc_value = sum(adc_values) / len(adc_values)
         adc_value = self.adc.read()
-        self.lipo_percent = int(round((adc_value - val_min) / (val_max - val_min) * 100, 0))
+        self.lipo_percent = int(round((adc_value - adc_value_min) / (adc_value_max - adc_value_min) * 100, 0))
         if self.lipo_percent > 100:
             self.lipo_percent = 100
         if self.lipo_percent < 0:
