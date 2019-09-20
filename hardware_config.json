@@ -4,6 +4,7 @@
     "scl": 0
   },
   "battery_adc_pin": 32,
+  "adc_switch_pin": 23,
   "mode_switch_pin": 25,
   "led_pin": 21
 }

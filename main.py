@@ -29,7 +29,7 @@ except Exception as e:
     print(e)
 # Initialize the battery power management
 print('Initializing power management')
-battery = Battery(config['battery_adc_pin'])
+battery = Battery(config['battery_adc_pin'], config['adc_switch_pin'])
 # Initialize Wifi
 print('Initializing WiFi')
 wifi = WiFi()
