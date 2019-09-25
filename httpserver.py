@@ -100,10 +100,22 @@ class HttpServer:
             if query.get('interval'):
                 wakeup_interval = int(query.get('interval'))
             else:
-                wakeup_interval = 900000
+                wakeup_interval = 600000
+
+            with open('hardware_config.json', 'r') as f:
+                json = f.read()
+            config = ujson.loads(json)
+
+            FIRSTSLEEP_TRIGGER = config['firstsleep_trigger']
+
+            def first_sleep():
+                with open(FIRSTSLEEP_TRIGGER, 'w') as s:
+                    pass
+                machine.reset()
+
             tim = machine.Timer(-1)
             try:
-                tim.init(period=3000, mode=machine.Timer.ONE_SHOT, callback=lambda t: machine.deepsleep(wakeup_interval))
+                tim.init(period=3000, mode=machine.Timer.ONE_SHOT, callback=lambda t: first_sleep())
             except:
                 httpResponse.WriteResponseInternalServerError()
             else:

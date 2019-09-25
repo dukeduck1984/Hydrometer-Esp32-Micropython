@@ -94,8 +94,6 @@ class WiFi:
                         self.sta_connect(self.ssid, self.pwd)
                     except:
                         pass
-                else:
-                    return None
                 break
             print('Connecting to "' + ap_ssid + '"...')
             self.sta.connect(ap_ssid, ap_pass)
