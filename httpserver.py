@@ -94,14 +94,7 @@ class HttpServer:
         def deepsleep_get(httpClient, httpResponse):
             """
             使ESP32进入深度睡眠，唤醒后便进入工作模式
-            e.g. http://192.168.4.1/deepsleep?interval=600000
             """
-            query = httpClient.GetRequestQueryParams()
-            if query.get('interval'):
-                wakeup_interval = int(query.get('interval'))
-            else:
-                wakeup_interval = 600000
-
             with open('hardware_config.json', 'r') as f:
                 json = f.read()
             config = ujson.loads(json)
