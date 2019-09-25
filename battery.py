@@ -44,6 +44,10 @@ class Battery:
         empty_mv = 3000
         voltage = self.measure_lipo_voltage()
         self.lipo_percent = int(round((voltage - empty_mv) / (full_mv - empty_mv) * 100, 0))
+        if self.lipo_percent > 100:
+            self.lipo_percent = 100
+        if self.lipo_percent < 0:
+            self.lipo_percent = 0
         return self.lipo_percent
 
     def get_lipo_level(self):
