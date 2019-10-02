@@ -22,7 +22,7 @@ print('--------------------')
 DEEPSLEEP_TRIGGER = config['deepsleep_trigger']
 FIRSTSLEEP_TRIGGER = config['firstsleep_trigger']
 # FIRSTSLEEP_MS = 60000  # 1 minutes
-FIRSTSLEEP_MS = 600000  # 10 minutes
+FIRSTSLEEP_MS = 1200000  # 20 minutes
 
 
 def initialization():
