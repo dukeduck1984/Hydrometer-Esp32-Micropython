@@ -18,6 +18,10 @@ with open('user_settings.json', 'r') as f:
 settings = ujson.loads(json)
 print('File "user_settings.json" has been loaded!')
 print('--------------------')
+# Initialize VPP pin
+vpp = machine.Pin(config['vpp_pin'], machine.Pin.OUT, value=0)
+print('The VPP pin has been initialized')
+print('--------------------')
 
 DEEPSLEEP_TRIGGER = config['deepsleep_trigger']
 FIRSTSLEEP_TRIGGER = config['firstsleep_trigger']
@@ -26,6 +30,10 @@ FIRSTSLEEP_MS = 1200000  # 20 minutes
 
 
 def initialization():
+    """
+    Initialize GY521 module, battery ADC pin and wifi
+    NOTE: VPP pin must be turned on in order to initialize the GY521 module
+    """
     from battery import Battery
     from gy521 import GY521
     from wifi import WiFi
@@ -39,7 +47,7 @@ def initialization():
         print(e)
     # Initialize the battery power management
     print('Initializing power management')
-    battery = Battery(config['battery_adc_pin'], config['adc_switch_pin'])
+    battery = Battery(config['battery_adc_pin'])
     # Initialize Wifi
     print('Initializing WiFi')
     wifi = WiFi()
@@ -47,6 +55,25 @@ def initialization():
     print('All done.')
     print('--------------------')
 
+
+def pull_hold_pins():
+    """
+    Set output pins to input with pull hold to save power consumption
+    """
+    machine.Pin(config['gy521_pins']['sda'], machine.Pin.IN, machine.Pin.PULL_HOLD)
+    machine.Pin(config['gy521_pins']['scl'], machine.Pin.IN, machine.Pin.PULL_HOLD)
+    machine.Pin(config['vpp_pin'], machine.Pin.IN, machine.Pin.PULL_HOLD)
+    machine.Pin(config['led_pin'], machine.Pin.IN, machine.Pin.PULL_HOLD)
+
+
+def unhold_pins():
+    """
+    Unhold the pins after wake up from deep sleep
+    """
+    machine.Pin(config['gy521_pins']['sda'], machine.Pin.OUT, None)
+    machine.Pin(config['gy521_pins']['scl'], machine.Pin.OUT, None)
+    machine.Pin(config['vpp_pin'], machine.Pin.OUT, None)
+    machine.Pin(config['led_pin'], machine.Pin.OUT, None)
 
 if machine.reset_cause() == machine.SOFT_RESET:
     import uos
@@ -56,14 +83,18 @@ if machine.reset_cause() == machine.SOFT_RESET:
         uos.remove(FIRSTSLEEP_TRIGGER)
         with open(DEEPSLEEP_TRIGGER, 'w') as f:
             pass
+        pull_hold_pins()
         machine.deepsleep(FIRSTSLEEP_MS)
     # 工作状态
     elif DEEPSLEEP_TRIGGER in uos.listdir():
+        pull_hold_pins()
         machine.deepsleep(settings['deepSleepIntervalMs'])
     # 进入校准模式
     else:
+        # Turn on VPP to supply power for GY521
+        vpp.on()
+        # Initialize the peripherals
         initialization()
-
         print('Entering Calibration Mode...')
         print('--------------------')
         # 1. Turn on the on-board green led to indicate calibration mode
@@ -91,6 +122,7 @@ if machine.reset_cause() == machine.SOFT_RESET:
                 except Exception:
                     print('Error occurs when measuring tilt angles')
                 utime.sleep_ms(3000)
+
         tilt_th = _thread.start_new_thread(measure_tilt, ())
         # 4. Set up HTTP Server
         from httpserver import HttpServer
@@ -104,7 +136,11 @@ if machine.reset_cause() == machine.SOFT_RESET:
 # 工作模式
 elif machine.reset_cause() == machine.DEEPSLEEP_RESET:
     from microWebCli import MicroWebCli
-    # 初始化外周器件
+    # Unhold the pins to allow those pins to be used
+    unhold_pins()
+    # Turn on VPP to supply power for GY521 and allow battery voltage measurement
+    vpp.on()
+    # Initialize the peripherals
     initialization()
     print('Entering Working Mode...')
     send_data_to_fermenter = settings['fermenterAp']['enabled']
@@ -130,6 +166,8 @@ elif machine.reset_cause() == machine.DEEPSLEEP_RESET:
     battery_percent = battery.get_lipo_level()
     # 3. Measure tilt angle
     _, tilt, _ = gy521.get_smoothed_angles()
+    # Turn off VPP to save power
+    vpp.off()
     # 4. Calculate Specific Gravity
     with open('regression.json', 'r') as f:
         json = f.read()
@@ -168,8 +206,10 @@ elif machine.reset_cause() == machine.DEEPSLEEP_RESET:
                 'updateIntervalMs': int(settings['deepSleepIntervalMs'])
             }
             cli = MicroWebCli(
-                url='http://192.168.4.1/gravity',  # fermenter esp32 api
-                # url='https://ba36095e-b0f1-430a-80a8-e32eb8663be8.mock.pstmn.io/gravity',  # postman mock server for testing
+                # Fermenter ESP32 API
+                url='http://192.168.4.1/gravity',
+                # Postman mock server for testing
+                # url='https://ba36095e-b0f1-430a-80a8-e32eb8663be8.mock.pstmn.io/gravity',
                 method='POST',
                 connTimeoutSec=60
             )
@@ -207,7 +247,7 @@ else:
         uos.remove(FIRSTSLEEP_TRIGGER)
     # Initialize the mode switch (a double-pole single-throw switch)
     print("Initializing the mode switch")
-    mode_switch = machine.Pin(config['mode_switch_pin'], machine.Pin.IN, machine.Pin.PULL_UP)
+    mode_switch = machine.Pin(config['mode_pin'], machine.Pin.IN, machine.Pin.PULL_UP)
     print('--------------------')
     print('First time power on...')
     print('If you wish to enter Calibration Mode, pls trigger the mode switch within 1 minute.')

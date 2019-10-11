@@ -1,11 +1,9 @@
 import machine
-import utime
 
 
 class Battery:
-    def __init__(self, adc_pin, switch_pin):
+    def __init__(self, adc_pin):
         self.adc = machine.ADC(machine.Pin(adc_pin))
-        self.switch = machine.Pin(switch_pin, machine.Pin.OUT, value=0)
         self.lipo_voltage = None
         self.lipo_percent = None
     
@@ -32,9 +30,7 @@ class Battery:
         # adc_values.sort()
         # adc_values = adc_values[1:4]
         # adc_value = sum(adc_values) / len(adc_values)
-        self.switch.on()
         adc_value = self.adc.read()
-        self.switch.off()
         factor = 1.184
         self.lipo_voltage = int(adc_value * factor)
         return self.lipo_voltage
