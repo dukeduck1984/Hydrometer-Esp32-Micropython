@@ -142,14 +142,23 @@ class HttpServer:
             """
             Start FTP service
             """
-            print('Initializing FTP service...')
+            with open('hardware_config.json', 'r') as f:
+                json = f.read()
+            config = ujson.loads(json)
+
+            FTP_TRIGGER = config['ftp_trigger']
+
+            def start_ftp():
+                with open(FTP_TRIGGER, 'w') as s:
+                    pass
+                machine.reset()
+
+            tim = machine.Timer(-1)
             try:
-                import uftpd
+                tim.init(period=3000, mode=machine.Timer.ONE_SHOT, callback=lambda t: start_ftp())
             except:
-                print('Failed to start FTP service.')
                 httpResponse.WriteResponseInternalServerError()
             else:
-                print('FTP service has started.')
                 httpResponse.WriteResponseOk()
 
         @MicroWebSrv.route('/mqtttest', 'POST')

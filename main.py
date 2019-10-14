@@ -25,34 +25,57 @@ print('--------------------')
 
 DEEPSLEEP_TRIGGER = config['deepsleep_trigger']
 FIRSTSLEEP_TRIGGER = config['firstsleep_trigger']
+FTP_TRIGGER = config['ftp_trigger']
 # FIRSTSLEEP_MS = 60000  # 1 minutes
 FIRSTSLEEP_MS = 1200000  # 20 minutes
 
 
-def initialization():
+def initialization(init_gy521=True, init_bat=True, init_wifi=True):
     """
     Initialize GY521 module, battery ADC pin and wifi
     NOTE: VPP pin must be turned on in order to initialize the GY521 module
     """
-    from battery import Battery
-    from gy521 import GY521
-    from wifi import WiFi
+    if init_gy521:
+        from gy521 import GY521
+        # Initialize the GY521 module
+        print('Initializing GY521 module')
+        try:
+            gy = GY521(config['gy521_pins']['sda'], config['gy521_pins']['scl'])
+        except Exception as e:
+            print(e)
+            gy = None
+    else:
+        gy = None
 
-    global gy521, battery, wifi
-    # Initialize the GY521 module
-    print('Initializing GY521 module')
-    try:
-        gy521 = GY521(config['gy521_pins']['sda'], config['gy521_pins']['scl'])
-    except Exception as e:
-        print(e)
-    # Initialize the battery power management
-    print('Initializing power management')
-    battery = Battery(config['battery_adc_pin'])
-    # Initialize Wifi
-    print('Initializing WiFi')
-    wifi = WiFi()
-    print('--------------------')
-    print('All done.')
+    if init_bat:
+        from battery import Battery
+        # Initialize the battery power management
+        print('Initializing power management')
+        bat = Battery(config['battery_adc_pin'])
+    else:
+        bat = None
+
+    if init_wifi:
+        from wifi import WiFi
+        # Initialize Wifi
+        print('Initializing WiFi')
+        wlan = WiFi()
+    else:
+        wlan = None
+    return gy, bat, wlan
+
+
+def open_wireless(wlan):
+    wlan.ap_start(settings['apSsid'])
+    print('AP started')
+    # get the AP IP of ESP32 itself, usually it's 192.168.4.1
+    ap_ip = wlan.get_ap_ip_addr()
+    print('AP IP: ' + ap_ip)
+    # get the Station IP of ESP32 in the WLAN which ESP32 connects to
+    if settings['wifi']['ssid']:
+        sta_ip = wlan.sta_connect(settings['wifi']['ssid'], settings['wifi']['pass'], verify_ap=True)
+        if sta_ip:
+            print('STA IP: ' + sta_ip)
     print('--------------------')
 
 
@@ -89,29 +112,26 @@ if machine.reset_cause() == machine.SOFT_RESET:
     elif DEEPSLEEP_TRIGGER in uos.listdir():
         pull_hold_pins()
         machine.deepsleep(settings['deepSleepIntervalMs'])
+    # FTP开启
+    elif FTP_TRIGGER in uos.listdir():
+        uos.remove(FTP_TRIGGER)
+        _, _, wifi = initialization(init_gy521=False, init_bat=False, init_wifi=True)
+        open_wireless(wifi)
+        print('Initializing FTP service')
+        import uftpd
     # 进入校准模式
     else:
         # Turn on VPP to supply power for GY521
         vpp.on()
         # Initialize the peripherals
-        initialization()
+        gy521, battery, wifi = initialization()
         print('Entering Calibration Mode...')
         print('--------------------')
         # 1. Turn on the on-board green led to indicate calibration mode
         led = machine.Pin(config['led_pin'], machine.Pin.OUT)
         led.on()
         # 2. Start WLAN in AP & STA mode to allow wifi connection
-        wifi.ap_start(settings['apSsid'])
-        print('AP started')
-        # get the AP IP of ESP32 itself, usually it's 192.168.4.1
-        ap_ip_addr = wifi.get_ap_ip_addr()
-        print('AP IP: ' + ap_ip_addr)
-        # get the Station IP of ESP32 in the WLAN which ESP32 connects to
-        if settings['wifi']['ssid']:
-            sta_ip_addr = wifi.sta_connect(settings['wifi']['ssid'], settings['wifi']['pass'], verify_ap=True)
-            if sta_ip_addr:
-                print('STA IP: ' + sta_ip_addr)
-        print('--------------------')
+        open_wireless(wifi)
         # 3. Measure tilt angle every 3s in the background
         import _thread
 
@@ -141,7 +161,7 @@ elif machine.reset_cause() == machine.DEEPSLEEP_RESET:
     # Turn on VPP to supply power for GY521 and allow battery voltage measurement
     vpp.on()
     # Initialize the peripherals
-    initialization()
+    gy521, battery, wifi = initialization()
     print('Entering Working Mode...')
     send_data_to_fermenter = settings['fermenterAp']['enabled']
     send_data_to_mqtt = settings['mqtt']['enabled']
