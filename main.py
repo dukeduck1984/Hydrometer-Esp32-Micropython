@@ -96,7 +96,7 @@ def unhold_pins():
     machine.Pin(config['gy521_pins']['sda'], machine.Pin.OUT, None)
     machine.Pin(config['gy521_pins']['scl'], machine.Pin.OUT, None)
     machine.Pin(config['vpp_pin'], machine.Pin.OUT, None)
-    machine.Pin(config['led_pin'], machine.Pin.OUT, None)
+    # machine.Pin(config['led_pin'], machine.Pin.OUT, None, value=0)
 
 if machine.reset_cause() == machine.SOFT_RESET:
     import uos
