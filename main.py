@@ -96,7 +96,13 @@ def unhold_pins():
     machine.Pin(config['gy521_pins']['sda'], machine.Pin.OUT, None)
     machine.Pin(config['gy521_pins']['scl'], machine.Pin.OUT, None)
     machine.Pin(config['vpp_pin'], machine.Pin.OUT, None)
-    # machine.Pin(config['led_pin'], machine.Pin.OUT, None, value=0)
+    # machine.Pin(config['led_pin'], machine.Pin.OUT, None, value=1)
+
+def init_onboard_led():
+    """
+    Initialize the on-board LED which is on pin5 and active low
+    """
+    return machine.Signal(machine.Pin(config['led_pin'], machine.Pin.OUT, value=1), invert=True)
 
 if machine.reset_cause() == machine.SOFT_RESET:
     import uos
@@ -116,6 +122,8 @@ if machine.reset_cause() == machine.SOFT_RESET:
     elif FTP_TRIGGER in uos.listdir():
         uos.remove(FTP_TRIGGER)
         _, _, wifi = initialization(init_gy521=False, init_bat=False, init_wifi=True)
+        led = init_onboard_led()
+        led.on()
         open_wireless(wifi)
         print('Initializing FTP service')
         import uftpd
@@ -128,7 +136,7 @@ if machine.reset_cause() == machine.SOFT_RESET:
         print('Entering Calibration Mode...')
         print('--------------------')
         # 1. Turn on the on-board green led to indicate calibration mode
-        led = machine.Pin(config['led_pin'], machine.Pin.OUT)
+        led = init_onboard_led()
         led.on()
         # 2. Start WLAN in AP & STA mode to allow wifi connection
         open_wireless(wifi)
@@ -295,7 +303,7 @@ else:
             machine.reset()
 
     mode_switch.irq(handler=switch_cb, trigger=machine.Pin.IRQ_FALLING)
-    led = machine.Pin(config['led_pin'], machine.Pin.OUT)
+    led = init_onboard_led()
     # Flashing the LED to indicate the system is standing by user's action
     while True:
         led.on()
