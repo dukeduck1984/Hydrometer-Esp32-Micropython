@@ -37,7 +37,7 @@ class GY521:
         else:
             return self.measured_angles
 
-    def get_smoothed_angles(self, samples=3):
+    def get_smoothed_angles(self, samples=5):
         """Calculate smoothed tilt angles
         
         Keyword Arguments:
