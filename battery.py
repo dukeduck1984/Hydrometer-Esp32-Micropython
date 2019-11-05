@@ -32,12 +32,12 @@ class Battery:
         # adc_value = sum(adc_values) / len(adc_values)
         adc_value = self.adc.read()
         factor = 1.184
-        self.lipo_voltage = int(adc_value * factor)
+        self.lipo_voltage = round(adc_value * factor / 1000, 2)
         return self.lipo_voltage
 
     def measure_lipo_level(self):
-        full_mv = 4200
-        empty_mv = 3000
+        full_mv = 4.2
+        empty_mv = 3.3
         voltage = self.measure_lipo_voltage()
         self.lipo_percent = int(round((voltage - empty_mv) / (full_mv - empty_mv) * 100, 0))
         if self.lipo_percent > 100:
@@ -59,7 +59,7 @@ class Battery:
     def get_lipo_voltage(self):
         """Return last measured lipo voltage
         Returns:
-            [int] -- [lipo voltage in mv, eg. 4200, unit is mv]
+            [int] -- [lipo voltage in V, eg. 4.2, unit is V]
         """
         if self.lipo_voltage:
             return self.lipo_voltage
