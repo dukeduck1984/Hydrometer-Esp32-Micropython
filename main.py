@@ -263,10 +263,14 @@ elif machine.reset_cause() == machine.DEEPSLEEP_RESET:
                 'batteryLevel': battery_percent,
                 'updateIntervalMs': int(settings['deepSleepIntervalMs'])
             }
+            # TODO 增加对CraftBeerPi的支持
+
+            api_url = 'http://192.168.4.1/hydrometer'
+            # api_url='/api/hydrometer/v1/data',  # CraftBeerPi3 API
+
             cli = MicroWebCli(
                 # Fermenter ESP32 API
-                url='http://192.168.4.1/gravity',
-                # url='/api/hydrometer/v1/data',  # CraftBeerPi3 API
+                url=api_url,
                 # Postman mock server for testing
                 # url='https://ba36095e-b0f1-430a-80a8-e32eb8663be8.mock.pstmn.io/gravity',
                 method='POST',
