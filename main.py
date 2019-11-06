@@ -2,7 +2,6 @@ import esp
 import machine
 import ujson
 import utime
-from micropython import const
 
 
 # disable os debug info
@@ -29,9 +28,9 @@ OW_PIN = const(config['onewire_pin'])
 OB_LED_PIN = const(config['onboard_led_pin'])
 GRN_LED_PIN = const(config['green_led_pin'])
 RED_LED_PIN = const(config['red_led_pin'])
-DEEPSLEEP_TRIGGER = const(config['deepsleep_trigger'])
-FIRSTSLEEP_TRIGGER = const(config['firstsleep_trigger'])
-FTP_TRIGGER = const(config['ftp_trigger'])
+DEEPSLEEP_TRIGGER = config['deepsleep_trigger']
+FIRSTSLEEP_TRIGGER = config['firstsleep_trigger']
+FTP_TRIGGER = config['ftp_trigger']
 # FIRSTSLEEP_MS = const(60000)  # 1 minutes
 FIRSTSLEEP_MS = const(1200000)  # 20 minutes
 
