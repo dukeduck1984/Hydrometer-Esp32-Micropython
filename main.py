@@ -266,8 +266,7 @@ elif machine.reset_cause() == machine.DEEPSLEEP_RESET:
             client.publish(mqtt_data)
         # 5.2. Send Specific Gravity data & battery level to Fermenter ESP32 by HTTP
         else:
-            import ubinascii
-            machine_id = ubinascii.hexlify(machine.unique_id()).decode().upper()
+            machine_id = int.from_bytes(machine.unique_id(), 'big')
             hydrometer_dict = {
                 'name': settings['apSsid'],
                 'ID': machine_id,
