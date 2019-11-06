@@ -369,6 +369,8 @@ else:
         global irq_counter
         if irq_counter < 1:
             irq_counter += 1
+            red_led.off()
+            green_led.off()
             machine.disable_irq()
             print('Rebooting to enter Calibration Mode...')
             utime.sleep_ms(3000)
