@@ -50,32 +50,32 @@ def initialization(init_gy521=True, init_ds18=True, init_bat=True, init_wifi=Tru
         # Initialize the GY521 module
         print('Initializing GY521 module')
         try:
-            gy = GY521(GY521_SDA, GY521_SCL)
+            gy521_sensor = GY521(GY521_SDA, GY521_SCL)
         except Exception as e:
             print(e)
-            gy = None
+            gy521_sensor = None
     else:
-        gy = None
+        gy521_sensor = None
 
     if init_ds18:
         from tempsensor import Ds18Sensors, SingleTempSensor
         try:
             ow = Ds18Sensors(OW_PIN)
             romcode_string = ow.get_device_list()[0].get('value')
-            ds18 = SingleTempSensor(ow, romcode_string)
+            ds18_sensor = SingleTempSensor(ow, romcode_string)
         except Exception as e:
             print(e)
-            ds18 = None
+            ds18_sensor = None
     else:
-        ds18 = None
+        ds18_sensor = None
 
     if init_bat:
         from battery import Battery
         # Initialize the battery power management
         print('Initializing power management')
-        bat = Battery(BAT_ADC_PIN)
+        lipo = Battery(BAT_ADC_PIN)
     else:
-        bat = None
+        lipo = None
 
     if init_wifi:
         from wifi import WiFi
@@ -84,7 +84,7 @@ def initialization(init_gy521=True, init_ds18=True, init_bat=True, init_wifi=Tru
         wlan = WiFi()
     else:
         wlan = None
-    return gy, ds18, bat, wlan
+    return gy521_sensor, ds18_sensor, lipo, wlan
 
 
 def open_wireless(wlan):
@@ -134,6 +134,7 @@ def init_leds():
     red = machine.Pin(RED_LED_PIN, machine.Pin.OUT)
     green = machine.Pin(GRN_LED_PIN, machine.Pin.OUT)
     return onboard, red, green
+
 
 if machine.reset_cause() == machine.SOFT_RESET:
     import uos
