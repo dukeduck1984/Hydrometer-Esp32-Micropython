@@ -2,6 +2,7 @@ import esp
 import machine
 import ujson
 import utime
+from micropython import const
 
 
 # disable os debug info
@@ -18,16 +19,26 @@ with open('user_settings.json', 'r') as f:
 settings = ujson.loads(json)
 print('File "user_settings.json" has been loaded!')
 print('--------------------')
+
+GY521_SDA = const(config['gy521_pins']['sda'])
+GY521_SCL = const(config['gy521_pins']['scl'])
+BAT_ADC_PIN = const(config['battery_adc_pin'])
+VPP_PIN = const(config['vpp_pin'])
+MODE_PIN = const(config['mode_pin'])
+OW_PIN = const(config['onewire_pin'])
+OB_LED_PIN = const(config['onboard_led_pin'])
+GRN_LED_PIN = const(config['green_led_pin'])
+RED_LED_PIN = const(config['red_led_pin'])
+DEEPSLEEP_TRIGGER = const(config['deepsleep_trigger'])
+FIRSTSLEEP_TRIGGER = const(config['firstsleep_trigger'])
+FTP_TRIGGER = const(config['ftp_trigger'])
+# FIRSTSLEEP_MS = const(60000)  # 1 minutes
+FIRSTSLEEP_MS = const(1200000)  # 20 minutes
+
 # Initialize VPP pin
-vpp = machine.Pin(config['vpp_pin'], machine.Pin.OUT, value=0)
+vpp = machine.Pin(VPP_PIN, machine.Pin.OUT, value=0)
 print('The VPP pin has been initialized')
 print('--------------------')
-
-DEEPSLEEP_TRIGGER = config['deepsleep_trigger']
-FIRSTSLEEP_TRIGGER = config['firstsleep_trigger']
-FTP_TRIGGER = config['ftp_trigger']
-# FIRSTSLEEP_MS = 60000  # 1 minutes
-FIRSTSLEEP_MS = 1200000  # 20 minutes
 
 
 def initialization(init_gy521=True, init_ds18=True, init_bat=True, init_wifi=True):
@@ -40,7 +51,7 @@ def initialization(init_gy521=True, init_ds18=True, init_bat=True, init_wifi=Tru
         # Initialize the GY521 module
         print('Initializing GY521 module')
         try:
-            gy = GY521(config['gy521_pins']['sda'], config['gy521_pins']['scl'])
+            gy = GY521(GY521_SDA, GY521_SCL)
         except Exception as e:
             print(e)
             gy = None
@@ -50,7 +61,7 @@ def initialization(init_gy521=True, init_ds18=True, init_bat=True, init_wifi=Tru
     if init_ds18:
         from tempsensor import Ds18Sensors, SingleTempSensor
         try:
-            ow = Ds18Sensors(config['onewire_pin'])
+            ow = Ds18Sensors(OW_PIN)
             romcode_string = ow.get_device_list()[0].get('value')
             ds18 = SingleTempSensor(ow, romcode_string)
         except Exception as e:
@@ -63,7 +74,7 @@ def initialization(init_gy521=True, init_ds18=True, init_bat=True, init_wifi=Tru
         from battery import Battery
         # Initialize the battery power management
         print('Initializing power management')
-        bat = Battery(config['battery_adc_pin'])
+        bat = Battery(BAT_ADC_PIN)
     else:
         bat = None
 
@@ -95,24 +106,24 @@ def pull_hold_pins():
     """
     Set output pins to input with pull hold to save power consumption
     """
-    machine.Pin(config['gy521_pins']['sda'], machine.Pin.IN, machine.Pin.PULL_HOLD)
-    machine.Pin(config['gy521_pins']['scl'], machine.Pin.IN, machine.Pin.PULL_HOLD)
-    machine.Pin(config['vpp_pin'], machine.Pin.IN, machine.Pin.PULL_HOLD)
-    machine.Pin(config['onboard_led_pin'], machine.Pin.IN, machine.Pin.PULL_HOLD)
-    machine.Pin(config['red_led_pin'], machine.Pin.IN, machine.Pin.PULL_HOLD)
-    machine.Pin(config['green_led_pin'], machine.Pin.IN, machine.Pin.PULL_HOLD)
+    machine.Pin(GY521_SDA, machine.Pin.IN, machine.Pin.PULL_HOLD)
+    machine.Pin(GY521_SCL, machine.Pin.IN, machine.Pin.PULL_HOLD)
+    machine.Pin(VPP_PIN, machine.Pin.IN, machine.Pin.PULL_HOLD)
+    machine.Pin(OB_LED_PIN, machine.Pin.IN, machine.Pin.PULL_HOLD)
+    machine.Pin(RED_LED_PIN, machine.Pin.IN, machine.Pin.PULL_HOLD)
+    machine.Pin(GRN_LED_PIN, machine.Pin.IN, machine.Pin.PULL_HOLD)
 
 
 def unhold_pins():
     """
     Unhold the pins after wake up from deep sleep
     """
-    machine.Pin(config['gy521_pins']['sda'], machine.Pin.OUT, None)
-    machine.Pin(config['gy521_pins']['scl'], machine.Pin.OUT, None)
-    machine.Pin(config['vpp_pin'], machine.Pin.OUT, None)
-    # machine.Pin(config['onboard_led_pin'], machine.Pin.OUT, None, value=1)
-    # machine.Pin(config['red_led_pin'], machine.Pin.OUT, None)
-    # machine.Pin(config['green_led_pin'], machine.Pin.OUT, None)
+    machine.Pin(GY521_SDA, machine.Pin.OUT, None)
+    machine.Pin(GY521_SCL, machine.Pin.OUT, None)
+    machine.Pin(VPP_PIN, machine.Pin.OUT, None)
+    # machine.Pin(OB_LED_PIN, machine.Pin.OUT, None, value=1)
+    # machine.Pin(RED_LED_PIN, machine.Pin.OUT, None)
+    # machine.Pin(GRN_LED_PIN, machine.Pin.OUT, None)
 
 
 def init_leds():
@@ -120,9 +131,9 @@ def init_leds():
     Initialize the on-board LED which is on pin5 and active low
     """
     # The on-board led of the Wemos Lolin32 is low active
-    onboard = machine.Signal(machine.Pin(config['onboard_led_pin'], machine.Pin.OUT, value=1), invert=True)
-    red = machine.Pin(config['red_led_pin'], machine.Pin.OUT)
-    green = machine.Pin(config['green_led_pin'], machine.Pin.OUT)
+    onboard = machine.Signal(machine.Pin(OB_LED_PIN, machine.Pin.OUT, value=1), invert=True)
+    red = machine.Pin(RED_LED_PIN, machine.Pin.OUT)
+    green = machine.Pin(GRN_LED_PIN, machine.Pin.OUT)
     return onboard, red, green
 
 if machine.reset_cause() == machine.SOFT_RESET:
@@ -255,22 +266,33 @@ elif machine.reset_cause() == machine.DEEPSLEEP_RESET:
             client.publish(mqtt_data)
         # 5.2. Send Specific Gravity data & battery level to Fermenter ESP32 by HTTP
         else:
+            import ubinascii
+            machine_id = ubinascii.hexlify(machine.unique_id()).decode().upper()
             hydrometer_dict = {
-                'temp': temp,
+                'name': settings['apSsid'],
+                'ID': machine_id,
+                'temperature': temp,
                 'angle': tilt,
                 'battery': battery_voltage,
                 'currentGravity': sg,
                 'batteryLevel': battery_percent,
                 'updateIntervalMs': int(settings['deepSleepIntervalMs'])
             }
-            # TODO 增加对CraftBeerPi的支持
 
-            api_url = 'http://192.168.4.1/hydrometer'
+            host = settings['fermenterAp']['host']
+            api = settings['fermenterAp']['api']
+            if not host.startswith('http://'):
+                host = 'http://' + host.strip()
+            if host.endswith('/'):
+                host = host[:-1]
+            if not api.startswith('/'):
+                api = '/' + api.strip()
+            url = host + api
             # api_url='/api/hydrometer/v1/data',  # CraftBeerPi3 API
 
             cli = MicroWebCli(
                 # Fermenter ESP32 API
-                url=api_url,
+                url=url,
                 # Postman mock server for testing
                 # url='https://ba36095e-b0f1-430a-80a8-e32eb8663be8.mock.pstmn.io/gravity',
                 method='POST',
@@ -316,10 +338,12 @@ else:
     print('If you wish to enter Calibration Mode, pls trigger the mode switch within 1 minute.')
     print('The system will go into Working Mode when 1 minute is out.')
 
-    # Initialize LEDs and battery management
+    # Initialize LEDs and battery power management
     onboard_led, red_led, green_led = init_leds()
-    _, _, bat, _ = initialization(init_gy521=False, init_ds18=False, init_wifi=False)
+    vpp.on()
+    _, _, bat, _ = initialization(init_gy521=False, init_ds18=False, init_bat=True, init_wifi=False)
     voltage = bat.get_lipo_voltage()
+    vpp.off()
     # Green light indicates healthy battery level
     # Red light means the battery is low
     if voltage >= 3.7:
