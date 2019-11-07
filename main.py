@@ -261,8 +261,9 @@ elif machine.reset_cause() == machine.DEEPSLEEP_RESET:
         if send_data_to_mqtt:
             from mqtt_client import MQTT
             hydrometer_dict = {
-                'temp': temp,
+                'temperature': temp,
                 'sg': sg,
+                'plato': plato,
                 'battery': battery_voltage
             }
             mqtt_data = ujson.dumps(hydrometer_dict)
@@ -278,6 +279,7 @@ elif machine.reset_cause() == machine.DEEPSLEEP_RESET:
                 'angle': tilt,
                 'battery': battery_voltage,
                 'currentGravity': sg,
+                'currentPlato': plato,
                 'batteryLevel': battery_percent,
                 'updateIntervalMs': int(settings['deepSleepIntervalMs'])
             }
