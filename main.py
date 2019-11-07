@@ -228,7 +228,11 @@ elif machine.reset_cause() == machine.DEEPSLEEP_RESET:
     # 3. Measure tilt angle
     _, tilt, _ = gy521.get_smoothed_angles()
     # 4. Measure temperature
-    temp = ds18.read_temp()
+    try:
+        temp = ds18.read_temp()
+    except Exception as e:
+        print(e)
+        temp = None
     # 5. Turn off VPP to save power
     vpp.off()
     # 6. Calculate Specific Gravity
@@ -268,7 +272,7 @@ elif machine.reset_cause() == machine.DEEPSLEEP_RESET:
         else:
             machine_id = int.from_bytes(machine.unique_id(), 'big')
             hydrometer_dict = {
-                'name': settings['apSsid'],
+                'name': settings.get('apSsid'),
                 'ID': machine_id,
                 'temperature': temp,
                 'angle': tilt,
