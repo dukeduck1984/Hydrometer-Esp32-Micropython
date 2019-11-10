@@ -31,7 +31,7 @@ class Battery:
         # adc_values = adc_values[1:4]
         # adc_value = sum(adc_values) / len(adc_values)
         adc_value = self.adc.read()
-        factor = 1.15
+        factor = 1.334  # Using resistors 1M & 240K
         self.lipo_voltage = round(adc_value * factor / 1000, 2)
         return self.lipo_voltage
 

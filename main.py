@@ -19,15 +19,15 @@ settings = ujson.loads(json)
 print('File "user_settings.json" has been loaded!')
 print('--------------------')
 
-GY521_SDA = const(config['gy521_pins']['sda'])
-GY521_SCL = const(config['gy521_pins']['scl'])
-BAT_ADC_PIN = const(config['battery_adc_pin'])
-VPP_PIN = const(config['vpp_pin'])
-MODE_PIN = const(config['mode_pin'])
-OW_PIN = const(config['onewire_pin'])
-OB_LED_PIN = const(config['onboard_led_pin'])
-GRN_LED_PIN = const(config['green_led_pin'])
-RED_LED_PIN = const(config['red_led_pin'])
+GY521_SDA = config['gy521_pins']['sda']
+GY521_SCL = config['gy521_pins']['scl']
+BAT_ADC_PIN = config['battery_adc_pin']
+VPP_PIN = config['vpp_pin']
+MODE_PIN = config['mode_pin']
+OW_PIN = config['onewire_pin']
+OB_LED_PIN = config['onboard_led_pin']
+GRN_LED_PIN = config['green_led_pin']
+RED_LED_PIN = config['red_led_pin']
 DEEPSLEEP_TRIGGER = config['deepsleep_trigger']
 FIRSTSLEEP_TRIGGER = config['firstsleep_trigger']
 FTP_TRIGGER = config['ftp_trigger']
