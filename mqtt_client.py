@@ -18,10 +18,15 @@ class MQTT:
         if self.topic.endswith('/'):
             self.topic = self.topic[:-1]
         self.client = MQTTClient(client_id, server, port, username, password)
-        self.client.connect()
 
     def is_enabled(self):
         return self.enabled
+
+    def manually_enable(self):
+        self.enabled = True
+
+    def manually_disable(self):
+        self.enabled = False
 
     def get_update_interval_ms(self):
         return self.interval_ms
@@ -39,7 +44,7 @@ class MQTT:
         try:
             self.connect()
         except:
-            pass
+            print('Failed to publish the data to the MQTT broker.')
         else:
             self.client.publish(self.topic, str_msg)
             self.disconnect()
