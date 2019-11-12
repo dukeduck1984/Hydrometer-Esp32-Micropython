@@ -161,6 +161,7 @@ if machine.reset_cause() == machine.SOFT_RESET:
         import uftpd
     # 进入校准模式
     else:
+        import gc
         # Turn on VPP to supply power for GY521
         vpp.on()
         # Initialize the peripherals
@@ -181,6 +182,7 @@ if machine.reset_cause() == machine.SOFT_RESET:
                     gy521.get_smoothed_angles()
                 except Exception:
                     print('Error occurs when measuring tilt angles')
+                gc.collect()
                 utime.sleep_ms(3000)
 
         tilt_th = _thread.start_new_thread(measure_tilt, ())
@@ -201,7 +203,7 @@ elif machine.reset_cause() == machine.DEEPSLEEP_RESET:
     # Turn on VPP to supply power for GY521 and allow battery voltage measurement
     vpp.on()
     # Initialize the peripherals
-    gy521, ds18, battery, wifi = initialization()
+    gy521, ds18, battery, wifi = initialization(init_gy521=True, init_ds18=True, init_bat=True, init_wifi=True)
     print('Entering Working Mode...')
     send_data_to_fermenter = settings['fermenterAp']['enabled']
     send_data_to_mqtt = settings['mqtt']['enabled']
@@ -335,13 +337,6 @@ else:
         uos.remove(DEEPSLEEP_TRIGGER)
     if FIRSTSLEEP_TRIGGER in uos.listdir():
         uos.remove(FIRSTSLEEP_TRIGGER)
-    # Initialize the mode switch (a double-pole single-throw switch)
-    print("Initializing the mode switch")
-    mode_switch = machine.Pin(config['mode_pin'], machine.Pin.IN, machine.Pin.PULL_UP)
-    print('--------------------')
-    print('First time power on...')
-    print('If you wish to enter Calibration Mode, pls trigger the mode switch within 1 minute.')
-    print('The system will go into Working Mode when 1 minute is out.')
 
     # Initialize LEDs and battery power management
     onboard_led, red_led, green_led = init_leds()
@@ -357,6 +352,14 @@ else:
     else:
         green_led.off()
         red_led.on()
+
+    # Initialize the mode switch (a double-pole single-throw switch)
+    print("Initializing the mode switch")
+    mode_switch = machine.Pin(config['mode_pin'], machine.Pin.IN, machine.Pin.PULL_UP)
+    print('--------------------')
+    print('First time power on...')
+    print('If you wish to enter Calibration Mode, pls trigger the mode switch within 1 minute.')
+    print('The system will go into Working Mode when 1 minute is out.')
 
     def first_sleep():
         with open(FIRSTSLEEP_TRIGGER, 'w') as s:
