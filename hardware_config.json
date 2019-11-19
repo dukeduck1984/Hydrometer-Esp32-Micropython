@@ -6,7 +6,10 @@
   "battery_adc_pin": 35,
   "vpp_pin": 23,
   "mode_pin": 27,
-  "led_pin": 5,
+  "onewire_pin": 16,
+  "onboard_led_pin": 5,
+  "green_led_pin": 25,
+  "red_led_pin": 26,
   "deepsleep_trigger": "deepsleep.inf",
   "firstsleep_trigger": "firstsleep.inf",
   "ftp_trigger": "ftp.inf"

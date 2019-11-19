@@ -1,7 +1,16 @@
 # Hydrometer-Esp32-Micropython
 A digital wireless hydrometer inspired by Tilt & iSpindel.  Powered by Micropython ESP32.
 
-### Features
+
+## Features
+- Upon switching on, the battery level will be indicated by the LED color - green means the battery is healthy while red means the power may not be enough for the whole fermentation process.
+- A reed switch is used to change mode, put a magnet close to the reed switch while the blue LED is flashing will boot the Hydrometer into calibration mode in which you can change the settings and calibrate the device.
+- This hydrometer is self-contained which means you can do the calibration without for example a spread sheet.  The polynomial regression for the plato/sg tilt angle relationship is already built into the front-end.  So just follow the guide and you can do the calibration easily.  The calibration even has a temperature correction feature which is optional, so that the calibration is still valid even if your tap water is really cold or warm.
+- The API is compatible with iSpindel, so it can be a drop-in replacement and is compatible with CraftBeerPi (also check out my Fermenter-ESP32, in fact a microcontroller is more suitable for this kind of stuff than a single board computer).
+- Data can be optionally sent to either the fermentation controller or a MQTT broker (e.g. Ubidots).
+- Same as the Tilt or the iSpindel, it has a DS18B20 temp sensor to measure 'the wort temp' which can be a reference for those brewers who don't have a temp sensor measuring the wort temp directly.
+
+### 功能
 - [X] 2种运行模式，校准模式 & 工作模式，由磁铁触发干簧管控制。Pin IN加上拉电阻，触发高电平时为校准模式，否则在1分钟后进入工作模式。
 - [X] 电源开关采用水银开关，试管圆头向上摆放为断电，圆头向下则通电。
 - [X] 校准模式下，点亮板载LED灯珠以示区别。
