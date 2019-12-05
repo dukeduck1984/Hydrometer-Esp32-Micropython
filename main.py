@@ -280,6 +280,7 @@ elif machine.reset_cause() == machine.DEEPSLEEP_RESET:
                 'temperature': temp,
                 'angle': tilt,
                 'battery': battery_voltage,
+                'fahrenheit': round(temp * 1.8 + 32, 1),
                 'currentGravity': sg,
                 'currentPlato': plato,
                 'batteryLevel': battery_percent,
