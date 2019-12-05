@@ -46,7 +46,7 @@ def initialization(init_gy521=True, init_ds18=True, init_bat=True, init_wifi=Tru
     NOTE: VPP pin must be turned on in order to initialize the GY521 module
     """
     if init_gy521:
-        from gy521 import GY521
+        from torpedo.gy521 import GY521
         # Initialize the GY521 module
         print('Initializing GY521 module')
         try:
@@ -58,7 +58,7 @@ def initialization(init_gy521=True, init_ds18=True, init_bat=True, init_wifi=Tru
         gy521_sensor = None
 
     if init_ds18:
-        from tempsensor import Ds18Sensors, SingleTempSensor
+        from torpedo.tempsensor import Ds18Sensors, SingleTempSensor
         try:
             ow = Ds18Sensors(OW_PIN)
             romcode_string = ow.get_device_list()[0].get('value')
@@ -70,7 +70,7 @@ def initialization(init_gy521=True, init_ds18=True, init_bat=True, init_wifi=Tru
         ds18_sensor = None
 
     if init_bat:
-        from battery import Battery
+        from torpedo.battery import Battery
         # Initialize the battery power management
         print('Initializing power management')
         lipo = Battery(BAT_ADC_PIN)
@@ -78,7 +78,7 @@ def initialization(init_gy521=True, init_ds18=True, init_bat=True, init_wifi=Tru
         lipo = None
 
     if init_wifi:
-        from wifi import WiFi
+        from torpedo.wifi import WiFi
         # Initialize Wifi
         print('Initializing WiFi')
         wlan = WiFi()
@@ -158,7 +158,6 @@ if machine.reset_cause() == machine.SOFT_RESET:
         onboard_led.on()
         open_wireless(wifi)
         print('Initializing FTP service')
-        import uftpd
     # 进入校准模式
     else:
         import gc
@@ -187,7 +186,7 @@ if machine.reset_cause() == machine.SOFT_RESET:
 
         tilt_th = _thread.start_new_thread(measure_tilt, ())
         # 4. Set up HTTP Server
-        from httpserver import HttpServer
+        from torpedo.httpserver import HttpServer
         web = HttpServer(gy521, wifi, settings)
         print('HTTP server initialized')
         web.start()
@@ -197,7 +196,7 @@ if machine.reset_cause() == machine.SOFT_RESET:
         print('--------------------')
 # 工作模式
 elif machine.reset_cause() == machine.DEEPSLEEP_RESET:
-    from microWebCli import MicroWebCli
+    from torpedo.microWebCli import MicroWebCli
     # Unhold the pins to allow those pins to be used
     unhold_pins()
     # Turn on VPP to supply power for GY521 and allow battery voltage measurement
@@ -261,7 +260,7 @@ elif machine.reset_cause() == machine.DEEPSLEEP_RESET:
     if wifi.is_connected():
         # 5.1. Send Specific Gravity data & battery level by MQTT
         if send_data_to_mqtt:
-            from mqtt_client import MQTT
+            from torpedo.mqtt_client import MQTT
             hydrometer_dict = {
                 'temperature': temp,
                 'sg': sg,

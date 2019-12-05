@@ -1,4 +1,4 @@
-from microWebSrv import MicroWebSrv
+from torpedo.microWebSrv import MicroWebSrv
 import machine
 import ujson
 
@@ -169,7 +169,7 @@ class HttpServer:
             settings_dict = httpClient.ReadRequestContentAsJSON()
             test_msg = {'test-message': 200}
             str_data = ujson.dumps(test_msg)
-            from mqtt_client import MQTT
+            from torpedo.mqtt_client import MQTT
             try:
                 client = MQTT(settings_dict)
                 client.publish(str_data)
