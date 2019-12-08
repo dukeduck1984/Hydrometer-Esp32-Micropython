@@ -25,7 +25,8 @@ BAT_ADC_PIN = config['battery_adc_pin']
 VPP_PIN = config['vpp_pin']
 MODE_PIN = config['mode_pin']
 OW_PIN = config['onewire_pin']
-OB_LED_PIN = config['onboard_led_pin']
+OB_LED_PIN = config['onboard_led']['pin']
+OB_LED_INVERT = config['onboard_led']['active_low']
 GRN_LED_PIN = config['green_led_pin']
 RED_LED_PIN = config['red_led_pin']
 DEEPSLEEP_TRIGGER = config['deepsleep_trigger']
@@ -130,7 +131,7 @@ def init_leds():
     Initialize the on-board LED which is on pin5 and active low
     """
     # The on-board led of the Wemos Lolin32 is low active
-    onboard = machine.Signal(machine.Pin(OB_LED_PIN, machine.Pin.OUT, value=1), invert=True)
+    onboard = machine.Signal(machine.Pin(OB_LED_PIN, machine.Pin.OUT, value=1), invert=OB_LED_INVERT)
     red = machine.Pin(RED_LED_PIN, machine.Pin.OUT)
     green = machine.Pin(GRN_LED_PIN, machine.Pin.OUT)
     return onboard, red, green
@@ -254,8 +255,8 @@ elif machine.reset_cause() == machine.DEEPSLEEP_RESET:
         sg = round(1 + (gravity / (258.6 - ((gravity / 258.2) * 227.1))), 3)
         plato = round(gravity, 1)
     else:
-        sg = round(gravity, 4)
-        plato = (-1 * 616.868) + (1111.14 * gravity) - (630.272 * gravity ** 2) + (135.997 * gravity ** 3)
+        sg = round(gravity, 3)
+        plato = round((-1 * 616.868) + (1111.14 * gravity) - (630.272 * gravity ** 2) + (135.997 * gravity ** 3), 1)
 
     if wifi.is_connected():
         # 5.1. Send Specific Gravity data & battery level by MQTT

@@ -7,7 +7,10 @@
   "vpp_pin": 23,
   "mode_pin": 27,
   "onewire_pin": 16,
-  "onboard_led_pin": 5,
+  "onboard_led": {
+    "pin": 5,
+    "active_low": true
+  },
   "green_led_pin": 25,
   "red_led_pin": 26,
   "deepsleep_trigger": "deepsleep.inf",
