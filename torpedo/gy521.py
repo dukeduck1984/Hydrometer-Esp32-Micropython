@@ -28,14 +28,7 @@ class GY521:
         beta = round(math.atan(ay / math.sqrt(ax**2 + az**2)) * 180 / math.pi, 2)
         # head angle (angle between z axis and gravity)
         gamma = round(math.atan(math.sqrt(ax**2 + ay**2) / az) * 180 / math.pi, 2)
-        self.measured_angles = alpha, beta, gamma
-        return self.measured_angles
-
-    def read_angles(self):
-        if not self.measured_angles:
-            return self.get_tilt_angles()
-        else:
-            return self.measured_angles
+        return alpha, beta, gamma
 
     def get_smoothed_angles(self, samples=5):
         """Calculate smoothed tilt angles
@@ -57,10 +50,20 @@ class GY521:
                 c.append(z)
 
             def calc_avg(li):
+                if len(li) > 4:
+                    li.sort()
+                    li.pop(0)
+                    li.pop(-1)
                 return round(sum(li) / len(li), 2)
             
             alpha_avg = calc_avg(a)
             beta_avg = calc_avg(b)
             gamma_avg = calc_avg(c)
+            self.measured_angles = alpha_avg, beta_avg, gamma_avg
+            return self.measured_angles
 
-            return alpha_avg, beta_avg, gamma_avg
+    def read_angles(self):
+        if not self.measured_angles:
+            return self.get_smoothed_angles()
+        else:
+            return self.measured_angles
