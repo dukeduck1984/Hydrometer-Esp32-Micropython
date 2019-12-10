@@ -23,8 +23,8 @@ class HttpServer:
             httpResponse.WriteResponseOk()
 
         # Define the web routes and functions
-        @MicroWebSrv.route('/calibration')
-        def calibration_get(httpClient, httpResponse):
+        @MicroWebSrv.route('/tilt')
+        def tilt_get(httpClient, httpResponse):
             """
             读取比重计倾角，前端每10秒请求1次
             """
@@ -49,6 +49,19 @@ class HttpServer:
                 httpResponse.WriteResponseInternalServerError()
             else:
                 httpResponse.WriteResponseOk()
+
+        @MicroWebSrv.route('/calibration')
+        def calibration_get(httpClient, httpResponse):
+            """
+            将上一次保存的校准参数从json文件中读取并发送到前台
+            """
+            try:
+                with open('regression.json', 'r') as f:
+                    params = ujson.load(f)
+            except:
+                httpResponse.WriteResponseInternalServerError()
+            else:
+                httpResponse.WriteResponseJSONOk(obj={'params': params}, headers=None)
 
         @MicroWebSrv.route('/settings')
         def settings_get(httpClient, httpResponse):
