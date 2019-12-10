@@ -1,14 +1,125 @@
 # Hydrometer-Esp32-Micropython
-A digital wireless hydrometer inspired by Tilt & iSpindel.  Powered by Micropython ESP32.
+
+###Codename: Torpedo
+A digital wireless hydrometer inspired by Tilt & iSpindel.
+
+Powered by MicroPython ESP32.
+
+---
+### Features
+- This hydrometer is self-contained, which means you can do the calibration without for example a spread sheet.
+  The polynomial regression for the plato/sg tilt angle relationship is already built into the front-end.
+  So just follow the guide and you can do the calibration easily.
+  The calibration even has a temperature correction feature which is optional, so that the calibration is still
+  valid even if your tap water is really cold or warm.
+- Gravity/Plato data can be optionally sent to either a fermentation controller, e.g. CraftBeerPi3
+  or a MQTT broker (e.g. Ubidots).
+- The API is compatible with CraftBeerPi3 out of the box (also be sure to check out my Fermenter-ESP32-Micropython project,
+  and it can be a drop-in replacement for iSpindel.
+- The API can be customized to be compatible with your own fermenter controller.
+- Measurements to be sent via the API: specific gravity, plato, temperature in both Celsius and Fahrenheit, tilt angel,
+  battery voltage etc.
+  No extra calculation required.
+- Like the Tilt or the iSpindel, it has a DS18B20 temp sensor to measure 'the wort temperature' which can be a reference
+  for those brewers who don't have a temp sensor measuring the wort temp directly.
+- The battery level will be indicated by the LED color upon switching on - green means the battery is healthy
+  while red means the power may not be enough to support the whole fermentation process.
+---
+
+### Bill of Materials
+** Just for reference as this is no hardware building guide.
+-[x] One **ESP32 dev board**.  In theory, any ESP32 dev board will work, but considering the deep-sleep power consumption,
+ the Wemos Lolin 32 or the DFRobot FireBeetle is recommended.  The code in this branch is for Wemos Lolin 32.
+-[x] One MPU6050 break-out board, e.g. **GY-521**.  It communicates with the ESP32 via I2C bus.
+-[x] One **DS18B20** temperature sensor.
+-[x] One **3mm LED** in green & and one in red.
+-[X] One SPDT (Single-Pole Double-Throw) or One SPST (Single-Pole Single Throw) switch.
+-[x] Some resistors (depending on how your hardware build).  E.g. 4.7K x 1 for the DS18B20; 62Ω x 1 for the green led;
+ 82Ω x 1 for the red; Voltage divider for battery voltage measurement, e.g. 240K x 1 & 1M x 1.
+-[x] It's recommended to power up the ESP32 board with an **LDO (Low DropOut) regulator** via one of the 3.3v pins
+ to optimize power consumption.  E.g. MCP1700, or XC6206, make sure the LDO output voltage is 3.3v.
+ In this case, two 1uF capacitors are needed to be wired in parallel with the input and the output of the LDO (pls refer
+ to the LDO manufacture's data sheet for details).
+-[x] It's also recommended to use a Mosfet to control the power supply to the DS18B20 and the GY-521, so that during
+ the deep-sleep and power can be turn off the DS18B20 and the GY-521 to maximize the battery life span.
+-[x] One **18650 rechargeable lipo battery** (better with a built-in protection circuit).  This project doesn't
+ incorporate a charging module.  The battery is charged with an external charger.  It's recommended to have a second
+ battery as a backup, so that you don't have to wait for the recharging - simply swap the battery and you are good to go.
+-[x] One **plastic tube** to hold the above hardware.  The tube will be in direct contact with the wort, so the material
+ should be food safe.  Also it's suggested avoid using a tube with the metal lid as metal blocks the WiFi signal.
+---
+
+### Usage Guide
+#### Installation
+
+#### Power on
+
+#### Calibration
+The purpose of the calibration is to find out the relationship between the tilt angle of the tube floating in the
+wort and the specific gravity (or Plato), which is polynomial, e.g. gravity = a * tilt * tilt + b * tilt + c.
+By measuring tilt angles of the tube in sugar solution with different concentration, the parameters a, b, c can be
+solved via regression.  The parameters will be affected by the mass of the hydrometer and the weight distribution
+of the weight etc., so once you have changed the weight of the hydrometer or the shape/size of the tube, you will need to
+redo the calibration.
+
+##### Enter the calibration mode
+
+#### Settings
+##### General
+##### Network
+##### Fermentation
 
 
-## Features
-- Upon switching on, the battery level will be indicated by the LED color - green means the battery is healthy while red means the power may not be enough for the whole fermentation process.
-- A reed switch is used to change mode, put a magnet close to the reed switch while the blue LED is flashing will boot the Hydrometer into calibration mode in which you can change the settings and calibrate the device.
-- This hydrometer is self-contained which means you can do the calibration without for example a spread sheet.  The polynomial regression for the plato/sg tilt angle relationship is already built into the front-end.  So just follow the guide and you can do the calibration easily.  The calibration even has a temperature correction feature which is optional, so that the calibration is still valid even if your tap water is really cold or warm.
-- The API is compatible with iSpindel, so it can be a drop-in replacement and is compatible with CraftBeerPi (also check out my Fermenter-ESP32, in fact a microcontroller is more suitable for this kind of stuff than a single board computer).
-- Data can be optionally sent to either the fermentation controller or a MQTT broker (e.g. Ubidots).
-- Same as the Tilt or the iSpindel, it has a DS18B20 temp sensor to measure 'the wort temp' which can be a reference for those brewers who don't have a temp sensor measuring the wort temp directly.
+### MQTT
+If you set the hydrometer to send the data via MQTT, below is an example of the data which will be sent.
+```json5
+{
+    "temperature": 22.3,
+    "sg": 1.043,
+    "plato": 10.7,
+    "battery": 3.76
+}
+```
+- temperature: number; The temperature measured by the DS18B20, in Celsius.
+- sg: number; The calculated specific gravity of the wort.
+- plato: number; The calculated Plato of the wort.
+- battery: number; The voltage of the battery.
+
+
+### WiFi Signal Enhancement
+In case the WiFi sigal is too weak to penetrate your fermenter or fridge, you need an external antenna
+ to relay the signal, which is extremely easy to build.  All you need is an insulated single-core electric wire - strip
+ 31mm (1/4 Lambda) of the insulated layers at both ends.  Make sure one end of the wire is placed close enough
+ to the hydrometer, and the other end close to the fermenter controller or the WiFi router, so it acts as 'a bridge'.
+
+
+### API
+Below is an example of the JSON content to sent via HTTP POST method to the API every time it wakes up.
+```json5
+{
+    "name": "Hydrometer",
+    "ID": 748215638,
+    "temperature": 22.3,
+    "angle": 67.5,
+    "battery": 3.76,
+    "fahrenheit": 72.1,
+    "currentGravity": 1.043,
+    "currentPlato": 10.7,
+    "batteryLevel": 90,
+    "updateIntervalMs": 1200000
+}
+```
+- name: string; The name of the hydrometer, it's also the SSID of the WiFi AP signal of the hydrometer.
+- ID: integer; The unique machine code of the ESP32.
+- temperature: number; The temperature measured by the DS18B20, in Celsius.
+- angle: number; The tilt angle of the long axis of the tube, in degree.
+- battery: number; The voltage of the battery.
+- fahrenheit: number; The temperature measured by the DS18B20, in Fahrenheit.
+- currentGravity: number; The calculated specific gravity of the wort.
+- currentPlato: number; The calculated Plato of the wort.
+- batteryLevel: number; The percentage of the battery level.
+- updateIntervalMs: integer; The wake up interval in milli-second.
+
 
 ### 功能
 - [X] 2种运行模式，校准模式 & 工作模式，由磁铁触发干簧管控制。Pin IN加上拉电阻，触发高电平时为校准模式，否则在1分钟后进入工作模式。
