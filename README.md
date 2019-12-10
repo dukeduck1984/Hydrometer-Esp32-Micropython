@@ -1,6 +1,6 @@
 # Hydrometer-Esp32-Micropython
 
-###Codename: Torpedo
+### Codename: Torpedo
 A digital wireless hydrometer inspired by Tilt & iSpindel.
 
 Powered by MicroPython ESP32.
@@ -28,24 +28,24 @@ Powered by MicroPython ESP32.
 
 ### Bill of Materials
 ** Just for reference as this is no hardware building guide.
--[x] One **ESP32 dev board**.  In theory, any ESP32 dev board will work, but considering the deep-sleep power consumption,
+- [x] One **ESP32 dev board**.  In theory, any ESP32 dev board will work, but considering the deep-sleep power consumption,
  the Wemos Lolin 32 or the DFRobot FireBeetle is recommended.  The code in this branch is for Wemos Lolin 32.
--[x] One MPU6050 break-out board, e.g. **GY-521**.  It communicates with the ESP32 via I2C bus.
--[x] One **DS18B20** temperature sensor.
--[x] One **3mm LED** in green & and one in red.
--[X] One SPDT (Single-Pole Double-Throw) or One SPST (Single-Pole Single Throw) switch.
--[x] Some resistors (depending on how your hardware build).  E.g. 4.7K x 1 for the DS18B20; 62Ω x 1 for the green led;
+- [x] One MPU6050 break-out board, e.g. **GY-521**.  It communicates with the ESP32 via I2C bus.
+- [x] One **DS18B20** temperature sensor.
+- [x] One **3mm LED** in green & and one in red.
+- [X] One SPDT (Single-Pole Double-Throw) or One SPST (Single-Pole Single Throw) switch.
+- [x] Some resistors (depending on how your hardware build).  E.g. 4.7K x 1 for the DS18B20; 62Ω x 1 for the green led;
  82Ω x 1 for the red; Voltage divider for battery voltage measurement, e.g. 240K x 1 & 1M x 1.
--[x] It's recommended to power up the ESP32 board with an **LDO (Low DropOut) regulator** via one of the 3.3v pins
+- [x] It's recommended to power up the ESP32 board with an **LDO (Low DropOut) regulator** via one of the 3.3v pins
  to optimize power consumption.  E.g. MCP1700, or XC6206, make sure the LDO output voltage is 3.3v.
  In this case, two 1uF capacitors are needed to be wired in parallel with the input and the output of the LDO (pls refer
  to the LDO manufacture's data sheet for details).
--[x] It's also recommended to use a Mosfet to control the power supply to the DS18B20 and the GY-521, so that during
+- [x] It's also recommended to use a Mosfet to control the power supply to the DS18B20 and the GY-521, so that during
  the deep-sleep and power can be turn off the DS18B20 and the GY-521 to maximize the battery life span.
--[x] One **18650 rechargeable lipo battery** (better with a built-in protection circuit).  This project doesn't
+- [x] One **18650 rechargeable lipo battery** (better with a built-in protection circuit).  This project doesn't
  incorporate a charging module.  The battery is charged with an external charger.  It's recommended to have a second
  battery as a backup, so that you don't have to wait for the recharging - simply swap the battery and you are good to go.
--[x] One **plastic tube** to hold the above hardware.  The tube will be in direct contact with the wort, so the material
+- [x] One **plastic tube** to hold the above hardware.  The tube will be in direct contact with the wort, so the material
  should be food safe.  Also it's suggested avoid using a tube with the metal lid as metal blocks the WiFi signal.
 ---
 
