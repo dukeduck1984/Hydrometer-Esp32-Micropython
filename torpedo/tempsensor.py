@@ -1,6 +1,7 @@
 import machine
 import onewire
 import ds18x20
+import utime
 
 
 class RomCodeConvert:
@@ -74,6 +75,7 @@ class SingleTempSensor(RomCodeConvert):
 
     def read_temp(self):
         self.ds_obj.get_realtime_temp()
+        utime.sleep_ms(500)
         try:
             temp = round(self.ds_obj.ds.read_temp(self.bytearray_romcode), 1)
         except Exception as e:
