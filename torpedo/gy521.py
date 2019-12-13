@@ -4,7 +4,7 @@ import utime
 
 class GY521:
     def __init__(self, sda_pin, scl_pin):
-        from torpedo.imu import MPU6050
+        from imu import MPU6050
         # See instruction: https://github.com/micropython-IMU/micropython-mpu9x50/blob/master/README_MPU9150.md
         # already modified for esp32(sda=21, scl=22)/wemos D1 mini(sda=4, scl=5)
         self.imu = MPU6050(sda=sda_pin, scl=scl_pin)

@@ -73,8 +73,7 @@ class SingleTempSensor(RomCodeConvert):
         self.bytearray_romcode = self.update_romcode(romcode_hex_string)
 
     def read_temp(self):
-        if not self.ds_obj.last_reading_available:
-            self.ds_obj.get_realtime_temp()
+        self.ds_obj.get_realtime_temp()
         try:
             temp = round(self.ds_obj.ds.read_temp(self.bytearray_romcode), 1)
         except Exception as e:
