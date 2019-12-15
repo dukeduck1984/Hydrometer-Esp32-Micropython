@@ -84,7 +84,7 @@ class WiFi:
             self.sta.active(True)
             utime.sleep_ms(100)
         start = utime.ticks_ms()
-        timeout = 12000  # set timeout to 12s
+        timeout = 20000  # set timeout to 12s
         while not self.sta.isconnected():
             if utime.ticks_diff(utime.ticks_ms(), start) > timeout:
                 print('Connecting to "' + ap_ssid + '" Timeout')
@@ -109,3 +109,6 @@ class WiFi:
 
     def is_connected(self):
         return self.sta.isconnected()
+
+    def sta_disconnect(self):
+        self.sta.disconnect()

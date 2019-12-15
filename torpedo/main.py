@@ -312,6 +312,8 @@ elif machine.reset_cause() == machine.DEEPSLEEP_RESET:
             req_counter = 0
             while req_counter < 3:
                 print('Sending hydrometer data to the fermenter...')
+                print('URL: ' + url)
+                print(hydrometer_dict)
                 try:
                     cli.OpenRequestJSONData(o=hydrometer_dict)
                 except Exception:
@@ -330,6 +332,8 @@ elif machine.reset_cause() == machine.DEEPSLEEP_RESET:
                     else:
                         print('Data sent successfully!')
                         break
+        wifi.sta_disconnect()
+        utime.sleep_ms(100)
     # 6. Go deep sleep again, and will wake up after sometime to repeat above.
     print('Sleeping now...')
     machine.reset()
