@@ -206,6 +206,7 @@ elif machine.reset_cause() == machine.DEEPSLEEP_RESET:
     # Initialize the peripherals
     gy521, ds18, battery, wifi = initialization(init_gy521=True, init_ds18=True, init_bat=True, init_wifi=True)
     print('Entering Working Mode...')
+    utime.sleep_ms(500)
     send_data_to_fermenter = settings['fermenterAp']['enabled']
     send_data_to_mqtt = settings['mqtt']['enabled']
     # 1. Start WLAN in STA mode and connect to AP
@@ -215,6 +216,7 @@ elif machine.reset_cause() == machine.DEEPSLEEP_RESET:
     else:
         ssid = settings['fermenterAp'].get('ssid')
         pswd = settings['fermenterAp'].get('pass')
+
     if ssid:
         sta_ip_addr = wifi.sta_connect(ssid, pswd)
         if sta_ip_addr:
@@ -227,9 +229,11 @@ elif machine.reset_cause() == machine.DEEPSLEEP_RESET:
     print('--------------------')
     # 2. Measure Lipo battery level
     battery_voltage = battery.get_lipo_voltage()
+    utime.sleep_ms(200)
     battery_percent = battery.get_lipo_level()
     # 3. Measure tilt angle
     _, tilt, _ = gy521.get_smoothed_angles()
+    utime.sleep_ms(200)
     # 4. Measure temperature
     try:
         ds18.read_temp()
