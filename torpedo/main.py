@@ -148,7 +148,7 @@ if machine.reset_cause() == machine.SOFT_RESET:
             pass
         pull_hold_pins()
         machine.deepsleep(FIRSTSLEEP_MS)
-    # 工作状态
+    # 工作模式下的休眠状态
     elif DEEPSLEEP_TRIGGER in uos.listdir():
         pull_hold_pins()
         machine.deepsleep(settings['deepSleepIntervalMs'])
