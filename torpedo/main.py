@@ -160,6 +160,8 @@ if machine.reset_cause() == machine.SOFT_RESET:
         onboard_led.on()
         open_wireless(wifi)
         print('Initializing FTP service')
+        utime.sleep_ms(500)
+        import uftpd
     # 进入校准模式
     else:
         import gc
@@ -224,6 +226,8 @@ elif machine.reset_cause() == machine.DEEPSLEEP_RESET:
     else:
         print('Pls set up the Wifi connection first.')
         print('Entering Calibration Mode in 5sec...')
+        if DEEPSLEEP_TRIGGER in uos.listdir():
+            uos.remove(DEEPSLEEP_TRIGGER)
         utime.sleep_ms(5000)
         machine.reset()
     print('--------------------')
@@ -337,8 +341,10 @@ elif machine.reset_cause() == machine.DEEPSLEEP_RESET:
                         print('Data sent successfully!')
                         break
         wifi.sta_disconnect()
-        utime.sleep_ms(100)
+        utime.sleep_ms(200)
     # 6. Go deep sleep again, and will wake up after sometime to repeat above.
+    with open(DEEPSLEEP_TRIGGER, 'w') as f:
+        pass
     print('Sleeping now...')
     machine.reset()
 # 首次开机，用户有1分钟时间出发模式选择开关进去校准模式; 1分钟之后程序会进入DEEP-SLEEP模式，再次唤醒后将开始工作
