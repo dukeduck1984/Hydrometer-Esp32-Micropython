@@ -7,8 +7,6 @@ Powered by MicroPython ESP32.
 
 ![](./pic/hydrometer1.jpg)
 
-![](./pic/hydrometer2.jpg)
-
 ---
 ### Features
 - This hydrometer is self-contained, which means you can do the calibration without for example a spread sheet.
@@ -28,6 +26,8 @@ Powered by MicroPython ESP32.
   for those brewers who don't have a temp sensor measuring the wort temp directly.
 - The battery level will be indicated by the LED color upon switching on - green means the battery is healthy
   while red means the power may not be enough to support the whole fermentation process.
+
+![](./pic/hydrometer2.jpg)
 ---
 
 ### Bill of Materials
