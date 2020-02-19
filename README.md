@@ -63,14 +63,14 @@ Powered by MicroPython ESP32.
 #### Installation
 * Downloading and flashing the firmware, pls see [here](http://micropython.org/download#esp32)
 * Uploading file ```uftpd.py``` to ESP32, pls see the [tutorial](https://techtutorialsx.com/2017/06/04/esp32-esp8266-micropython-uploading-files-to-the-file-system/)
-* Connecting ESP32 via SSH, and establish an FTP connection:
-    ```python
-    import network
-    sta = network.WLAN(network.STA_IF)
-    sta.active(True)
-    sta.connect('WIFI_SSID', 'WIFI_PASSWORD')  # replace the strings with your own wifi ssid and password
-    sta.isconnected()  # check if the wifi connection is established
-    import uftpd  # if wifi is connected, import uftpd to start the FTP service, you will see the ip and port of the ftp server
+* Access to the MicroPython REPL prompt by serial connection, and start the FTP service:
+    ```
+    > import network
+    > sta = network.WLAN(network.STA_IF)
+    > sta.active(True)
+    > sta.connect('WIFI_SSID', 'WIFI_PASSWORD')  # replace the strings with your own wifi ssid and password
+    > sta.isconnected()  # check if the wifi connection is established
+    > import uftpd  # if wifi is connected, import uftpd to start the FTP service, you will see the ip and port of the ftp server
     ```
 * Connect to the FTP server which is created on the ESP32 with [FileZilla](https://filezilla-project.org/download.php),
 or any other FTP clients.
