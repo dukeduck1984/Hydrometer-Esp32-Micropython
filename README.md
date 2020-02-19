@@ -5,6 +5,10 @@ A digital wireless hydrometer inspired by Tilt & iSpindel.
 
 Powered by MicroPython ESP32.
 
+![](./pic/hydrometer1.jpg)
+
+![](./pic/hydrometer2.jpg)
+
 ---
 ### Features
 - This hydrometer is self-contained, which means you can do the calibration without for example a spread sheet.
@@ -55,7 +59,7 @@ Powered by MicroPython ESP32.
 ![](./pic/lolin32_pinout.png)
 
 ---
-### Usage Guide
+### User Guide
 #### Installation
 * Downloading and flashing the firmware, pls see [here](http://micropython.org/download#esp32)
 * Uploading file ```uftpd.py``` to ESP32, pls see the [tutorial](https://techtutorialsx.com/2017/06/04/esp32-esp8266-micropython-uploading-files-to-the-file-system/)
@@ -90,6 +94,8 @@ By measuring tilt angles of the tube in sugar solution with different concentrat
 solved via regression.  The parameters will be affected by the mass and the weight distribution of the hydrometer,
 so once you have changed the weight of the hydrometer or the shape/size of the tube, you will need to
 redo the calibration.
+
+![](./pic/in_action.jpg)
 
 #### Settings
 
@@ -167,6 +173,7 @@ In case the WiFi sigal is too weak to penetrate your fermenter or fridge, you ne
  31mm (1/4 Lambda) of the insulated layers at both ends.  Make sure one end of the wire is placed close enough
  to the hydrometer, and the other end close to the fermenter controller or the WiFi router, so it acts as 'a bridge'.
 * I found this technique [here](https://hobbybrauer.de/forum/viewtopic.php?p=208782#p208782), as well as the pictures below.
+
 ![](./pic/antenna1.jpg)
 ![](./pic/antenna2.jpg)
 ![](./pic/antenna3.jpg)
