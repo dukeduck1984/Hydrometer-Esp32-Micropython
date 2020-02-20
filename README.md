@@ -1,9 +1,10 @@
-# Hydrometer-Esp32-Micropython
+# Hydrometer-Esp32-MicroPython
 
 ### Codename: Torpedo
-A digital wireless hydrometer inspired by Tilt & iSpindel.
+A digital wireless hydrometer inspired by [Tilt](https://tilthydrometer.com/) 
+& [iSpindel](http://www.ispindel.de/).
 
-Powered by MicroPython ESP32.
+Powered by [MicroPython](http://micropython.org/) ESP32.
 
 ![](./pic/hydrometer1.jpg)
 
@@ -49,6 +50,7 @@ Powered by MicroPython ESP32.
  battery as a backup, so that you don't have to wait for the recharging - simply swap the battery and you are good to go.
 - [x] 1 x **plastic tube** to hold the above hardware.  The tube will be in direct contact with the wort, so the material
  should be food safe.  Also it's suggested avoid using a tube with the metal lid as metal blocks the WiFi signal.
+- [x] Some weights.  Here I used some M8 bolt, nut and washer.
 ---
 
 ### Wiring
@@ -80,6 +82,8 @@ or any other FTP clients.
 * Turn on the hydrometer by the swith (SPDT or SPST), then you will see the blue on-board LED flashing.
 * The blue LED will keep flashing for 1 minute, then the LED will be off and the hydrometer will go into 'work mode' in 
 which it will be in deep sleep and wake up regularly to measure the gravity.
+* Either the green or red 3mm LED will be on which indicates the battery level.  Red means the battery is dying and needs
+recharge.
 
 ##### Enter the calibration mode
 * While the blue LED is flashing, press the external push button to activate 'calibration mode'.
@@ -89,7 +93,7 @@ which it will be in deep sleep and wake up regularly to measure the gravity.
 
 #### Calibration
 The purpose of the calibration is to find out the relationship between the tilt angle of the tube floating in the
-wort and the specific gravity (or Plato), which is polynomial, e.g. gravity = a * tilt * tilt + b * tilt + c.
+wort and the specific gravity (or Plato), which is polynomial, e.g. `gravity = a * tilt * tilt + b * tilt + c`.
 By measuring tilt angles of the tube in sugar solution with different concentration, the parameters a, b, c can be
 solved via regression.  The parameters will be affected by the mass and the weight distribution of the hydrometer,
 so once you have changed the weight of the hydrometer or the shape/size of the tube, you will need to
