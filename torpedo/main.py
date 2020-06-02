@@ -175,6 +175,7 @@ if machine.reset_cause() == machine.SOFT_RESET:
         onboard_led, _, _ = init_leds()
         onboard_led.on()
         # 2. Start WLAN in AP & STA mode to allow wifi connection
+        utime.sleep_ms(1000)
         open_wireless(wifi)
         # 3. Measure tilt angle every 3s in the background
         import _thread
@@ -194,7 +195,7 @@ if machine.reset_cause() == machine.SOFT_RESET:
         web = HttpServer(gy521, wifi, settings)
         print('HTTP server initialized')
         web.start()
-        utime.sleep(3)
+        utime.sleep_ms(3000)
         if web.is_started():
             print('HTTP service started')
         print('--------------------')
