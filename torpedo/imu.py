@@ -102,7 +102,8 @@ class MPU6050(object):
                 raise ValueError('Device address must be 0 or 1')
             self.mpu_addr = self._mpu_addr[device_addr]
 
-        self.chip_id                     # Test communication by reading chip_id: throws exception on error
+        # self.chip_id                          # Test communication by reading chip_id: throws exception on error
+        # Line 105 is commented out to skip genuine chip check
         # Can communicate with chip. Set it up.
         self.wake()                             # wake it up
         self.passthrough = True                 # Enable mag access from main I2C bus
