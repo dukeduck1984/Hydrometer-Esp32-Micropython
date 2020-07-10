@@ -271,21 +271,35 @@ elif machine.reset_cause() == machine.DEEPSLEEP_RESET:
         plato = round((-1 * 616.868) + (1111.14 * gravity) - (630.272 * gravity ** 2) + (135.997 * gravity ** 3), 1)
 
     if wifi.is_connected():
+        machine_id = int.from_bytes(machine.unique_id(), 'big')
         # 5.1. Send Specific Gravity data & battery level by MQTT
         if send_data_to_mqtt:
             from mqtt_client import MQTT
-            hydrometer_dict = {
-                'temperature': temp,
-                'sg': sg,
-                'plato': plato,
-                'battery': battery_voltage
-            }
+            # Format for ChinaMobile OneNET IoT platform
+            if settings.get('mqtt').get('brokerAddr') == '183.230.40.96' and\
+                    settings.get('mqtt').get('brokerPort') == 1883:
+                hydrometer_dict = {
+                    # 'id': machine_id,
+                    'id': 123,
+                    'dp': {
+                        'temperature': [{'v': temp}],
+                        'sg': [{'v': sg}],
+                        'plato': [{'v': plato}],
+                        'battery': [{'v': battery_voltage}]
+                    }
+                }
+            else:
+                hydrometer_dict = {
+                    'temperature': temp,
+                    'sg': sg,
+                    'plato': plato,
+                    'battery': battery_voltage
+                }
             mqtt_data = ujson.dumps(hydrometer_dict)
             client = MQTT(settings)
             client.publish(mqtt_data)
         # 5.2. Send Specific Gravity data & battery level to Fermenter ESP32 by HTTP
         else:
-            machine_id = int.from_bytes(machine.unique_id(), 'big')
             hydrometer_dict = {
                 'name': settings.get('apSsid'),
                 'ID': machine_id,
